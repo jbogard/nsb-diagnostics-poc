@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using OpenTelemetry.Collector;
 using OpenTelemetry.Trace;
 
@@ -37,6 +39,15 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             }
 
             Tracer.StartActiveSpanFromActivity(activity.OperationName, activity, SpanKind.Producer, out var span);
+
+            if (span.IsRecording)
+            {
+                foreach (var header in payload.Context.Headers.Where(pair =>
+                    pair.Key.StartsWith("NServiceBus.", StringComparison.OrdinalIgnoreCase)))
+                {
+                    span.SetAttribute(header.Key, header.Value);
+                }
+            }
         }
 
         private void ProcessEvent(Activity activity, AfterSendMessage payload)

@@ -63,6 +63,8 @@ namespace WebApplication
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
+                    endpointConfiguration.PurgeOnStartup(true);
+               
                     // configure endpoint here
                     return endpointConfiguration;
                 })
