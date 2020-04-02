@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using NServiceBus.Settings;
 using OpenTelemetry.Collector;
 using OpenTelemetry.Trace;
 
@@ -38,7 +39,9 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
                 return;
             }
 
-            Tracer.StartActiveSpanFromActivity(activity.OperationName, activity, SpanKind.Consumer, out var span);
+            var settings = payload.Context.Builder.Build<ReadOnlySettings>();
+
+            Tracer.StartActiveSpanFromActivity(settings.LogicalAddress().ToString(), activity, SpanKind.Consumer, out var span);
 
             if (span.IsRecording)
             {

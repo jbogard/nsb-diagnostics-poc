@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using NServiceBus.Routing;
 using OpenTelemetry.Collector;
 using OpenTelemetry.Trace;
 
@@ -38,7 +39,26 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
                 return;
             }
 
-            Tracer.StartActiveSpanFromActivity(activity.OperationName, activity, SpanKind.Producer, out var span);
+            payload.Context.Headers.TryGetValue(Headers.MessageIntent, out var intent);
+
+            var routes = payload.Context.RoutingStrategies
+                .Select(r => r.Apply(payload.Context.Headers))
+                .Select(t =>
+                {
+                    switch (t)
+                    {
+                        case UnicastAddressTag u:
+                            return u.Destination;
+                        case MulticastAddressTag m:
+                            return m.MessageType.Name;
+                        default:
+                            return null;
+                    }
+                });
+
+            var operationName = $"{intent ?? activity.OperationName} {string.Join(", ", routes)}";
+
+            Tracer.StartActiveSpanFromActivity(operationName, activity, SpanKind.Producer, out var span);
 
             if (span.IsRecording)
             {
