@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTelemetry" Version="0.2.0-alpha.222" />
+    <PackageReference Include="OpenTelemetry" Version="0.2.0-alpha.224" />
   </ItemGroup>
 
   <ItemGroup>

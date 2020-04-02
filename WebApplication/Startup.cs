@@ -38,10 +38,15 @@ namespace WebApplication
                         o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                         o.ServiceName = Program.EndpointName;
                     })
+                    .UseApplicationInsights(c =>
+                    {
+                        c.InstrumentationKey = Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
+                    })
                     .AddNServiceBusCollector()
                     .AddRequestCollector()
                     .AddDependencyCollector(configureSqlCollectorOptions: opt => opt.CaptureTextCommandContent = true);
             });
+            //services.AddApplicationInsightsTelemetry();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

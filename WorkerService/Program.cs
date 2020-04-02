@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -44,7 +45,7 @@ namespace WorkerService
                     // configure endpoint here
                     return endpointConfiguration;
                 })
-                .ConfigureServices(services =>
+                .ConfigureServices((context, services) =>
                 {
                     services.AddOpenTelemetry(builder =>
                     {
@@ -54,11 +55,10 @@ namespace WorkerService
                                 o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                                 o.ServiceName = EndpointName;
                             })
-                            //.UseJaeger(o =>
-                            //{
-                            //    o.ServiceName = EndpointName;
-                            //    o.AgentHost = "localhost";
-                            //})
+                            .UseApplicationInsights(c =>
+                            {
+                                c.InstrumentationKey = context.Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
+                            })
                             .AddNServiceBusCollector()
                             .AddRequestCollector()
                             .AddDependencyCollector();
