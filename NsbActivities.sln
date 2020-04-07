@@ -3,19 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "WebApplication\WebApplication.csproj", "{5965F150-4B67-4FF9-BE3F-D6672EEA7986}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication", "WebApplication\WebApplication.csproj", "{5965F150-4B67-4FF9-BE3F-D6672EEA7986}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService", "WorkerService\WorkerService.csproj", "{A5292E28-9420-4D01-B39D-6030CD304C80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "WorkerService\WorkerService.csproj", "{A5292E28-9420-4D01-B39D-6030CD304C80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService.Messages", "WorkerService.Messages\WorkerService.Messages.csproj", "{A8986447-31BB-44D1-9808-2BB8CEE11F09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService.Messages", "WorkerService.Messages\WorkerService.Messages.csproj", "{A8986447-31BB-44D1-9808-2BB8CEE11F09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Diagnostics", "NServiceBus.Diagnostics\NServiceBus.Diagnostics.csproj", "{AD213043-A612-4C31-B6B4-6DF14622788D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Diagnostics", "NServiceBus.Diagnostics\NServiceBus.Diagnostics.csproj", "{AD213043-A612-4C31-B6B4-6DF14622788D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Diagnostics.OpenTelemetry", "NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj", "{447D45E0-C332-4343-BC1A-DF7819D1459E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Diagnostics.OpenTelemetry", "NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj", "{447D45E0-C332-4343-BC1A-DF7819D1459E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CE98ADE7-3D17-401F-97B9-9A5E585D2349}"
 	ProjectSection(SolutionItems) = preProject
 		nuget.config = nuget.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

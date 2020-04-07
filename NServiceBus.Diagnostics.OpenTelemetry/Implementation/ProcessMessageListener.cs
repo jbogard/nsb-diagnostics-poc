@@ -45,6 +45,11 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
             if (span.IsRecording)
             {
+                span.SetAttribute("messaging.message_id", payload.Context.Message.MessageId);
+                span.SetAttribute("messaging.operation", "process");
+
+                span.ApplyContext(settings, payload.Context.MessageHeaders);
+
                 foreach (var header in payload.Context.MessageHeaders.Where(pair => pair.Key.StartsWith("NServiceBus.", StringComparison.OrdinalIgnoreCase)))
                 {
                     span.SetAttribute(header.Key, header.Value);

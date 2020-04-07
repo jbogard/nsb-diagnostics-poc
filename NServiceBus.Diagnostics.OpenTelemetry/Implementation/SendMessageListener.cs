@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using NServiceBus.Routing;
+using NServiceBus.Settings;
 using OpenTelemetry.Collector;
 using OpenTelemetry.Trace;
 
@@ -62,6 +63,10 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
             if (span.IsRecording)
             {
+                span.SetAttribute("messaging.message_id", payload.Context.MessageId);
+             
+                span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
+
                 foreach (var header in payload.Context.Headers.Where(pair =>
                     pair.Key.StartsWith("NServiceBus.", StringComparison.OrdinalIgnoreCase)))
                 {
