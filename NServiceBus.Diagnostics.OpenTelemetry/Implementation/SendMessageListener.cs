@@ -16,20 +16,12 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
         public override void OnStartActivity(Activity activity, object payload)
         {
-
+            ProcessEvent(activity, payload as BeforeSendMessage);
         }
 
-        public override void OnCustom(string name, Activity activity, object payload)
+        public override void OnStopActivity(Activity activity, object payload)
         {
-            switch (name)
-            {
-                case BeforeSendMessage.EventName:
-                    ProcessEvent(activity, payload as BeforeSendMessage);
-                    break;
-                case AfterSendMessage.EventName:
-                    ProcessEvent(activity, payload as AfterSendMessage);
-                    break;
-            }
+            ProcessEvent(activity, payload as AfterSendMessage);
         }
 
         private void ProcessEvent(Activity activity, BeforeSendMessage payload)
@@ -55,7 +47,8 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
                         default:
                             return null;
                     }
-                });
+                })
+                .ToList();
 
             var operationName = $"{intent ?? activity.OperationName} {string.Join(", ", routes)}";
 
@@ -64,7 +57,7 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             if (span.IsRecording)
             {
                 span.SetAttribute("messaging.message_id", payload.Context.MessageId);
-             
+
                 span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
 
                 foreach (var header in payload.Context.Headers.Where(pair =>

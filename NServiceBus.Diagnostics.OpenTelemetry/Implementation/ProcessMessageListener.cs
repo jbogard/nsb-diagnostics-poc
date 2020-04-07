@@ -15,20 +15,12 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
         public override void OnStartActivity(Activity activity, object payload)
         {
-
+            ProcessEvent(activity, payload as BeforeProcessMessage);
         }
 
-        public override void OnCustom(string name, Activity activity, object payload)
+        public override void OnStopActivity(Activity activity, object payload)
         {
-            switch (name)
-            {
-                case BeforeProcessMessage.EventName:
-                    ProcessEvent(activity, payload as BeforeProcessMessage);
-                    break;
-                case AfterProcessMessage.EventName:
-                    ProcessEvent(activity, payload as AfterProcessMessage);
-                    break;
-            }
+            ProcessEvent(activity, payload as AfterProcessMessage);
         }
 
         private void ProcessEvent(Activity activity, BeforeProcessMessage payload)
@@ -47,6 +39,7 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             {
                 span.SetAttribute("messaging.message_id", payload.Context.Message.MessageId);
                 span.SetAttribute("messaging.operation", "process");
+                span.SetAttribute("net.peer.name", settings.LogicalAddress().ToString());
 
                 span.ApplyContext(settings, payload.Context.MessageHeaders);
 

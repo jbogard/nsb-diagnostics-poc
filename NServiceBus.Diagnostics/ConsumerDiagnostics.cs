@@ -88,7 +88,7 @@ namespace NServiceBus.Diagnostics
 
     public class BeforeProcessMessage
     {
-        public const string EventName = Constants.ConsumerActivityName + "." + nameof(BeforeProcessMessage);
+        public const string EventName = Constants.ConsumerActivityName + ".Start";
 
         public BeforeProcessMessage(IIncomingPhysicalMessageContext context, Activity activity)
         {
@@ -102,7 +102,7 @@ namespace NServiceBus.Diagnostics
 
     public class AfterProcessMessage
     {
-        public const string EventName = Constants.ConsumerActivityName + "." + nameof(AfterProcessMessage);
+        public const string EventName = Constants.ConsumerActivityName + ".Stop";
 
         public AfterProcessMessage(IIncomingPhysicalMessageContext context, Activity activity)
         {

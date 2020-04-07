@@ -81,7 +81,7 @@ namespace NServiceBus.Diagnostics
 
     public class BeforeSendMessage
     {
-        public const string EventName = Constants.ProducerActivityName + "." + nameof(BeforeSendMessage);
+        public const string EventName = Constants.ProducerActivityName + ".Start";
 
         public BeforeSendMessage(IOutgoingPhysicalMessageContext context) => Context = context;
 
@@ -90,7 +90,7 @@ namespace NServiceBus.Diagnostics
 
     public class AfterSendMessage
     {
-        public const string EventName = Constants.ProducerActivityName + "." + nameof(AfterSendMessage);
+        public const string EventName = Constants.ProducerActivityName + ".Stop";
 
         public AfterSendMessage(IOutgoingPhysicalMessageContext context) => Context = context;
 
