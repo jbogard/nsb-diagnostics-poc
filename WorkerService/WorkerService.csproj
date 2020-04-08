@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.3" />
-    <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.0.0" />
+    <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.0.1" />
     <PackageReference Include="NServiceBus.Json" Version="1.0.3" />
     <PackageReference Include="NServiceBus.MicrosoftLogging.Hosting" Version="1.3.1" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="5.1.2" />
@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ChildWorkerService.Messages\ChildWorkerService.Messages.csproj" />
     <ProjectReference Include="..\NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj" />
     <ProjectReference Include="..\NServiceBus.Diagnostics\NServiceBus.Diagnostics.csproj" />
     <ProjectReference Include="..\WorkerService.Messages\WorkerService.Messages.csproj" />

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,10 +26,11 @@ namespace WebApplication.Controllers
         {
             var command = new SaySomething
             {
-                Message = message
+                Message = message,
+                Id = Guid.NewGuid()
             };
 
-            _logger.LogInformation("Sending message {message}", command.Message);
+            _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
 
             await _messageSession.Send(command);
 

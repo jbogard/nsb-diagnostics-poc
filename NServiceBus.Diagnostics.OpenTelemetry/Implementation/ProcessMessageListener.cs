@@ -39,7 +39,6 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             {
                 span.SetAttribute("messaging.message_id", payload.Context.Message.MessageId);
                 span.SetAttribute("messaging.operation", "process");
-                span.SetAttribute("net.peer.name", settings.LogicalAddress().ToString());
 
                 span.ApplyContext(settings, payload.Context.MessageHeaders);
 

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using ChildWorkerService.Messages;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,11 +11,11 @@ using NServiceBus.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
 using OpenTelemetry.Trace.Configuration;
 
-namespace WorkerService
+namespace ChildWorkerService
 {
     public class Program
     {
-        private const string EndpointName = "NsbActivities.WorkerService";
+        private const string EndpointName = "NsbActivities.ChildWorkerService";
 
         public static void Main(string[] args)
         {
@@ -34,9 +36,6 @@ namespace WorkerService
                     var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
                     transport.ConnectionString("host=localhost");
                     transport.UseConventionalRoutingTopology();
-
-                    var routing = transport.Routing();
-                    routing.RouteToEndpoint(typeof(MakeItYell).Assembly, "NsbActivities.ChildWorkerService");
 
                     endpointConfiguration.UsePersistence<LearningPersistence>();
 
