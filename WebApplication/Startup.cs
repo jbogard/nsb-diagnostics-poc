@@ -38,6 +38,11 @@ namespace WebApplication
                         o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                         o.ServiceName = Program.EndpointName;
                     })
+                    .UseJaeger(c =>
+                    {
+                        c.AgentHost = "localhost";
+                        c.AgentPort = 6831;
+                    })
                     .UseApplicationInsights(c =>
                     {
                         c.InstrumentationKey = Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
