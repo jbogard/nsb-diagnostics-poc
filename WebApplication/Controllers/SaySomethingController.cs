@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using WebApplication.Messages;
 using WorkerService.Messages;
 
 namespace WebApplication.Controllers
@@ -33,6 +34,22 @@ namespace WebApplication.Controllers
             _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
 
             await _messageSession.Send(command);
+
+            return Accepted();
+        }
+
+        [HttpGet("else")]
+        public async Task<ActionResult> Else(string message)
+        {
+            var @event = new SomethingSaid
+            {
+                Message = message,
+                Id = Guid.NewGuid()
+            };
+
+            _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
+
+            await _messageSession.Publish(@event);
 
             return Accepted();
         }

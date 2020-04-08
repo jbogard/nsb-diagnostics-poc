@@ -44,6 +44,8 @@ namespace WorkerService
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
+                    endpointConfiguration.AuditSagaStateChanges("Particular.ServiceControl.2");
+
                     endpointConfiguration.PurgeOnStartup(true);
 
                     // configure endpoint here

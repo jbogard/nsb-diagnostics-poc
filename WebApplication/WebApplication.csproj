@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj" />
     <ProjectReference Include="..\NServiceBus.Diagnostics\NServiceBus.Diagnostics.csproj" />
+    <ProjectReference Include="..\WebApplication.Messages\WebApplication.Messages.csproj" />
     <ProjectReference Include="..\WorkerService.Messages\WorkerService.Messages.csproj" />
   </ItemGroup>
 

@@ -24,5 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ChildWorkerService.Messages\ChildWorkerService.Messages.csproj" />
     <ProjectReference Include="..\NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\WebApplication.Messages\WebApplication.Messages.csproj" />
   </ItemGroup>
 </Project>
