@@ -15,9 +15,12 @@ namespace WorkerService
         public string Message { get; set; }
     }
 
+    public class WaitTimeout { }
+
     public class SomethingSaidSaga : Saga<SomethingSaidSagaData>,
         IAmStartedByMessages<TemperatureRead>,
-        IAmStartedByMessages<SomethingYelled>
+        IAmStartedByMessages<SomethingYelled>,
+        IHandleTimeouts<WaitTimeout>
     {
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SomethingSaidSagaData> mapper)
         {
@@ -47,14 +50,19 @@ namespace WorkerService
         {
             if (Data.TemperatureRead && Data.SomethingYelled)
             {
-                MarkAsComplete();
-
-                var message = new SomethingSaidCompleted {Message = $"{Data.Message} and it's {Data.Temp}F outside."};
-
-                return context.Publish(message);
+                return RequestTimeout<WaitTimeout>(context, TimeSpan.FromSeconds(2));
             }
 
             return Task.CompletedTask;
+        }
+
+        public Task Timeout(WaitTimeout state, IMessageHandlerContext context)
+        {
+            MarkAsComplete();
+
+            var message = new SomethingSaidCompleted { Message = $"{Data.Message} and it's {Data.Temp}F outside." };
+
+            return context.Publish(message);
         }
     }
 }
