@@ -45,6 +45,10 @@ namespace ChildWorkerService
 
                     endpointConfiguration.PurgeOnStartup(true);
 
+                    var recoverability = endpointConfiguration.Recoverability();
+                    recoverability.Immediate(i => i.NumberOfRetries(1));
+                    recoverability.Delayed(i => i.NumberOfRetries(0));
+
                     // configure endpoint here
                     return endpointConfiguration;
                 })
