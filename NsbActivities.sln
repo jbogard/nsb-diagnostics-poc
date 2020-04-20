@@ -19,11 +19,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChildWorkerService", "ChildWorkerService\ChildWorkerService.csproj", "{98890147-122D-4E19-9B2E-92EFA94E48FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChildWorkerService", "ChildWorkerService\ChildWorkerService.csproj", "{98890147-122D-4E19-9B2E-92EFA94E48FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChildWorkerService.Messages", "ChildWorkerService.Messages\ChildWorkerService.Messages.csproj", "{E2A80797-3BFD-495D-9235-FE5FC6E04FDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChildWorkerService.Messages", "ChildWorkerService.Messages\ChildWorkerService.Messages.csproj", "{E2A80797-3BFD-495D-9235-FE5FC6E04FDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication.Messages", "WebApplication.Messages\WebApplication.Messages.csproj", "{CE13F70F-3828-4033-84CD-33656BDC9B85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication.Messages", "WebApplication.Messages\WebApplication.Messages.csproj", "{CE13F70F-3828-4033-84CD-33656BDC9B85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.Extensions.SystemDiagnostics", "MongoDB.Driver.Core.Extensions.SystemDiagnostics\MongoDB.Driver.Core.Extensions.SystemDiagnostics.csproj", "{9471DE8A-5E20-413F-84F0-99DEB5373E73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

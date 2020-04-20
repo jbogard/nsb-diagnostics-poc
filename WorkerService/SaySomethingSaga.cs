@@ -45,7 +45,7 @@ namespace WorkerService
 
             return ReplyToOriginator(context, new SaySomethingResponse
             {
-                Message = message.Value
+                Message = message.Value + " and the favorite person is " + message.FavoritePerson
             });
         }
     }

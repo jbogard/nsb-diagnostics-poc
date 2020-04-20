@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Mongo2Go;
+using MongoDB.Driver;
 using NServiceBus;
 using NServiceBus.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
@@ -54,6 +56,19 @@ namespace ChildWorkerService
                 })
                 .ConfigureServices((context, services) =>
                 {
+                    var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
+                    
+                    services.AddSingleton(runner);
+                    var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
+                    {
+                        DatabaseName = "dev"
+                    };
+                    var mongoUrl = urlBuilder.ToMongoUrl();
+                    var mongoClient = new MongoClient(mongoUrl);
+                    services.AddSingleton(mongoUrl);
+                    services.AddSingleton(mongoClient);
+                    services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
+                    services.AddHostedService<Mongo2GoService>();
                     services.AddOpenTelemetry(builder =>
                     {
                         builder
