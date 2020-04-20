@@ -15,7 +15,6 @@ namespace NServiceBus.Diagnostics.OpenTelemetry
             _diagnosticSourceSubscriber.Subscribe();
         }
 
-
         public void Dispose() 
             => _diagnosticSourceSubscriber?.Dispose();
     }

@@ -31,11 +31,13 @@ namespace NServiceBus.Diagnostics
 
             _diagnosticListener.OnActivityImport(activity, context);
 
-            activity.Start();
-
             if (_diagnosticListener.IsEnabled(BeforeSendMessage.EventName, context))
             {
-                _diagnosticListener.Write(BeforeSendMessage.EventName, new BeforeSendMessage(context));
+                _diagnosticListener.StartActivity(activity, new BeforeSendMessage(context));
+            }
+            else
+            {
+                activity.Start();
             }
 
             return activity;
@@ -65,17 +67,7 @@ namespace NServiceBus.Diagnostics
 
         private static void StopActivity(Activity activity, IOutgoingPhysicalMessageContext context)
         {
-            if (activity.Duration == TimeSpan.Zero)
-            {
-                activity.SetEndTime(DateTime.UtcNow);
-            }
-
-            if (_diagnosticListener.IsEnabled(AfterSendMessage.EventName))
-            {
-                _diagnosticListener.Write(AfterSendMessage.EventName, new AfterSendMessage(context));
-            }
-
-            activity.Stop();
+            _diagnosticListener.StopActivity(activity, new AfterSendMessage(context));
         }
     }
 

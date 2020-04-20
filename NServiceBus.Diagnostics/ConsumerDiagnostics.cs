@@ -9,7 +9,8 @@ namespace NServiceBus.Diagnostics
 {
     public class ConsumerDiagnostics : Behavior<IIncomingPhysicalMessageContext>
     {
-        private static readonly DiagnosticSource _diagnosticListener = new DiagnosticListener(Constants.ConsumerActivityName);
+        private static readonly DiagnosticSource _diagnosticListener 
+            = new DiagnosticListener(Constants.ConsumerActivityName);
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
@@ -60,11 +61,13 @@ namespace NServiceBus.Diagnostics
 
             _diagnosticListener.OnActivityImport(activity, context);
 
-            activity.Start();
-
             if (_diagnosticListener.IsEnabled(BeforeProcessMessage.EventName, context))
             {
-                _diagnosticListener.Write(BeforeProcessMessage.EventName, new BeforeProcessMessage(context, activity));
+                _diagnosticListener.StartActivity(activity, new BeforeProcessMessage(context));
+            }
+            else
+            {
+                activity.Start();
             }
 
             return activity;
@@ -72,17 +75,7 @@ namespace NServiceBus.Diagnostics
 
         private static void StopActivity(Activity activity, IIncomingPhysicalMessageContext context)
         {
-            if (activity.Duration == TimeSpan.Zero)
-            {
-                activity.SetEndTime(DateTime.UtcNow);
-            }
-
-            if (_diagnosticListener.IsEnabled(AfterProcessMessage.EventName))
-            {
-                _diagnosticListener.Write(AfterProcessMessage.EventName, new AfterProcessMessage(context, activity));
-            }
-
-            activity.Stop();
+            _diagnosticListener.StopActivity(activity, new AfterProcessMessage(context));
         }
     }
 
@@ -90,29 +83,19 @@ namespace NServiceBus.Diagnostics
     {
         public const string EventName = Constants.ConsumerActivityName + ".Start";
 
-        public BeforeProcessMessage(IIncomingPhysicalMessageContext context, Activity activity)
-        {
-            Context = context;
-            StartTimeUtc = activity.StartTimeUtc;
-        }
+        public BeforeProcessMessage(IIncomingPhysicalMessageContext context)
+            => Context = context;
 
         public IIncomingPhysicalMessageContext Context { get; }
-        public DateTime StartTimeUtc { get; }
     }
 
     public class AfterProcessMessage
     {
         public const string EventName = Constants.ConsumerActivityName + ".Stop";
 
-        public AfterProcessMessage(IIncomingPhysicalMessageContext context, Activity activity)
-        {
-            Context = context;
-            StartTimeUtc = activity.StartTimeUtc;
-            Duration = activity.Duration;
-        }
+        public AfterProcessMessage(IIncomingPhysicalMessageContext context) 
+            => Context = context;
 
         public IIncomingPhysicalMessageContext Context { get; }
-        public DateTime StartTimeUtc { get; }
-        public TimeSpan Duration { get; }
     }
 }
