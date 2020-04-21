@@ -25,10 +25,10 @@ namespace ChildWorkerService
         {
             _logger.LogInformation("Yelling out {message}", message.Value);
 
-            if (_coinFlip.Next(2) == 0)
-            {
-                throw new Exception("Something went wrong!");
-            }
+            //if (_coinFlip.Next(2) == 0)
+            //{
+            //    throw new Exception("Something went wrong!");
+            //}
 
             var collection = _database.GetCollection<Person>(nameof(Person));
 

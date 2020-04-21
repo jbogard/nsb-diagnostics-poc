@@ -13,6 +13,7 @@ namespace WorkerService
         public bool TemperatureRead { get; set; }
         public int Temp { get; set; }
         public string Message { get; set; }
+        public string FavoritePerson { get; set; }
     }
 
     public class WaitTimeout { }
@@ -42,6 +43,7 @@ namespace WorkerService
             Data.OriginatorId = message.Id;
             Data.SomethingYelled = true;
             Data.Message = message.Message;
+            Data.FavoritePerson = message.FavoritePerson;
 
             return CheckComplete(context);
         }
@@ -60,7 +62,7 @@ namespace WorkerService
         {
             MarkAsComplete();
 
-            var message = new SomethingSaidCompleted { Message = $"{Data.Message} and it's {Data.Temp}F outside." };
+            var message = new SomethingSaidCompleted { Message = $"{Data.Message} and it's {Data.Temp}F outside and the favorite person is {Data.FavoritePerson}." };
 
             return context.Publish(message);
         }

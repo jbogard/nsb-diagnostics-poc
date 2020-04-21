@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChildWorkerService.Messages\ChildWorkerService.Messages.csproj" />
+    <ProjectReference Include="..\MongoDB.Driver.Core.Extensions.OpenTelemetry\MongoDB.Driver.Core.Extensions.OpenTelemetry.csproj" />
+    <ProjectReference Include="..\MongoDB.Driver.Core.Extensions.SystemDiagnostics\MongoDB.Driver.Core.Extensions.SystemDiagnostics.csproj" />
     <ProjectReference Include="..\NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj" />
     <ProjectReference Include="..\WebApplication.Messages\WebApplication.Messages.csproj" />
   </ItemGroup>

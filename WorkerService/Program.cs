@@ -65,6 +65,7 @@ namespace WorkerService
                             {
                                 c.AgentHost = "localhost";
                                 c.AgentPort = 6831;
+                                c.ServiceName = EndpointName;
                             })
                             .UseApplicationInsights(c =>
                             {

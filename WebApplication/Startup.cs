@@ -42,6 +42,7 @@ namespace WebApplication
                     {
                         c.AgentHost = "localhost";
                         c.AgentPort = 6831;
+                        c.ServiceName = Program.EndpointName;
                     })
                     .UseApplicationInsights(c =>
                     {

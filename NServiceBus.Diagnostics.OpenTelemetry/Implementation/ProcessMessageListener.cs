@@ -51,7 +51,10 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
         private void ProcessEvent(Activity activity, AfterProcessMessage payload)
         {
-            Tracer.CurrentSpan.End();
+            if (Tracer.CurrentSpan.IsRecording)
+            {
+                Tracer.CurrentSpan.End();
+            }
         }
     }
 }

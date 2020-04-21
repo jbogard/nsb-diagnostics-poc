@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Mongo2Go;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Extensions.OpenTelemetry;
+using MongoDB.Driver.Core.Extensions.SystemDiagnostics;
 using NServiceBus;
 using NServiceBus.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
@@ -64,7 +66,9 @@ namespace ChildWorkerService
                         DatabaseName = "dev"
                     };
                     var mongoUrl = urlBuilder.ToMongoUrl();
-                    var mongoClient = new MongoClient(mongoUrl);
+                    var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
+                    mongoClientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
+                    var mongoClient = new MongoClient(mongoClientSettings);
                     services.AddSingleton(mongoUrl);
                     services.AddSingleton(mongoClient);
                     services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
@@ -81,12 +85,14 @@ namespace ChildWorkerService
                             {
                                 c.AgentHost = "localhost";
                                 c.AgentPort = 6831;
+                                c.ServiceName = EndpointName;
                             })
                             .UseApplicationInsights(c =>
                             {
                                 c.InstrumentationKey = context.Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
                             })
                             .AddNServiceBusCollector()
+                            .AddMongoDBCollector()
                             .AddRequestCollector()
                             .AddDependencyCollector();
                     });

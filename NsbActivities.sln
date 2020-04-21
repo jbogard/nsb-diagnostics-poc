@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication.Messages", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.Extensions.SystemDiagnostics", "MongoDB.Driver.Core.Extensions.SystemDiagnostics\MongoDB.Driver.Core.Extensions.SystemDiagnostics.csproj", "{9471DE8A-5E20-413F-84F0-99DEB5373E73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.Core.Extensions.OpenTelemetry", "MongoDB.Driver.Core.Extensions.OpenTelemetry\MongoDB.Driver.Core.Extensions.OpenTelemetry.csproj", "{55B5A4C5-4C91-4028-9815-C2ACA8A077AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9471DE8A-5E20-413F-84F0-99DEB5373E73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55B5A4C5-4C91-4028-9815-C2ACA8A077AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55B5A4C5-4C91-4028-9815-C2ACA8A077AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55B5A4C5-4C91-4028-9815-C2ACA8A077AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55B5A4C5-4C91-4028-9815-C2ACA8A077AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
