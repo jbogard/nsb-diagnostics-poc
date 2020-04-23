@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Extensions.OpenTelemetry.Implementation
             if (endPoint is IPEndPoint ipEndPoint)
             {
                 span.SetAttribute("db.user", $"mongodb://{ipEndPoint.Address}:{ipEndPoint.Port}");
-                span.SetAttribute("net.peer.ip", ipEndPoint.Address);
+                span.SetAttribute("net.peer.ip", ipEndPoint.Address.ToString());
                 span.SetAttribute("net.peer.port", ipEndPoint.Port);
             }
             else if (endPoint is DnsEndPoint dnsEndPoint)
