@@ -48,7 +48,7 @@ namespace WebApplication
                     {
                         c.InstrumentationKey = Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
                     })
-                    .AddNServiceBusCollector()
+                    .AddNServiceBusAdapter()
                     .AddRequestCollector()
                     .AddDependencyCollector(configureSqlCollectorOptions: opt => opt.CaptureTextCommandContent = true);
             });

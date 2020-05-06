@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
@@ -56,6 +57,11 @@ namespace NServiceBus.Diagnostics
                             }
                         }
                     }
+                }
+
+                foreach (var header in context.MessageHeaders.Where(kvp => kvp.Key.StartsWith("NServiceBus")))
+                {
+                    activity.AddTag(header.Key.Replace("NServiceBus.", ""), header.Value);
                 }
             }
 

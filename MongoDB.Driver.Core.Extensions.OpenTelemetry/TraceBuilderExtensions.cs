@@ -5,9 +5,9 @@ namespace MongoDB.Driver.Core.Extensions.OpenTelemetry
 {
     public static class TraceBuilderExtensions
     {
-        public static TracerBuilder AddMongoDBCollector(this TracerBuilder builder)
+        public static TracerBuilder AddMongoDBAdapter(this TracerBuilder builder)
             => builder
-                .AddCollector(t => new MongoDBCommandCollector(t));
+                .AddAdapter(t => new MongoDBCommandAdapter(t));
 
     }
 }

@@ -4,9 +4,9 @@ namespace NServiceBus.Diagnostics.OpenTelemetry
 {
     public static class TraceBuilderExtensions
     {
-        public static TracerBuilder AddNServiceBusCollector(this TracerBuilder builder) 
+        public static TracerBuilder AddNServiceBusAdapter(this TracerBuilder builder) 
             => builder
-                .AddCollector(t => new NServiceBusReceiveCollector(t))
-                .AddCollector(t => new NServiceBusSendCollector(t));
+                .AddAdapter(t => new NServiceBusReceiveAdapter(t))
+                .AddAdapter(t => new NServiceBusSendAdapter(t));
     }
 }

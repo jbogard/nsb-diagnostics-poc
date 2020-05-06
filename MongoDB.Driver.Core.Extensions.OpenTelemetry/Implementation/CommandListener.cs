@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using MongoDB.Driver.Core.Extensions.SystemDiagnostics;
-using OpenTelemetry.Collector;
+using OpenTelemetry.Adapter;
 using OpenTelemetry.Trace;
 
 namespace MongoDB.Driver.Core.Extensions.OpenTelemetry.Implementation
@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Core.Extensions.OpenTelemetry.Implementation
         {
             if (!(payload is CommandStarted message))
             {
-                CollectorEventSource.Log.NullPayload("CommandListener.OnStartActivity");
+                AdapterEventSource.Log.NullPayload("CommandListener.OnStartActivity");
                 return;
             }
 
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Extensions.OpenTelemetry.Implementation
         {
             if (!(payload is CommandSucceeded message))
             {
-                CollectorEventSource.Log.NullPayload("CommandListener.OnStopActivity");
+                AdapterEventSource.Log.NullPayload("CommandListener.OnStopActivity");
                 return;
             }
 
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Extensions.OpenTelemetry.Implementation
         {
             if (!(payload is CommandFailed message))
             {
-                CollectorEventSource.Log.NullPayload("CommandListener.OnExceptionActivity");
+                AdapterEventSource.Log.NullPayload("CommandListener.OnExceptionActivity");
                 return;
             }
 

@@ -1,15 +1,15 @@
 ﻿using System;
 using NServiceBus.Diagnostics.OpenTelemetry.Implementation;
-using OpenTelemetry.Collector;
+using OpenTelemetry.Adapter;
 using OpenTelemetry.Trace;
 
 namespace NServiceBus.Diagnostics.OpenTelemetry
 {
-    public class NServiceBusReceiveCollector : IDisposable
+    public class NServiceBusReceiveAdapter : IDisposable
     {
         private readonly DiagnosticSourceSubscriber _diagnosticSourceSubscriber;
 
-        public NServiceBusReceiveCollector(Tracer tracer)
+        public NServiceBusReceiveAdapter(Tracer tracer)
         {
             _diagnosticSourceSubscriber = new DiagnosticSourceSubscriber(new ProcessMessageListener("NServiceBus.Diagnostics.Receive", tracer), null);
             _diagnosticSourceSubscriber.Subscribe();

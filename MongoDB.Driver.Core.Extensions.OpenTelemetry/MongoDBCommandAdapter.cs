@@ -1,16 +1,16 @@
 ﻿using System;
 using MongoDB.Driver.Core.Extensions.OpenTelemetry.Implementation;
 using MongoDB.Driver.Core.Extensions.SystemDiagnostics;
-using OpenTelemetry.Collector;
+using OpenTelemetry.Adapter;
 using OpenTelemetry.Trace;
 
 namespace MongoDB.Driver.Core.Extensions.OpenTelemetry
 {
-    public class MongoDBCommandCollector : IDisposable
+    public class MongoDBCommandAdapter : IDisposable
     {
         private readonly DiagnosticSourceSubscriber _diagnosticSourceSubscriber;
 
-        public MongoDBCommandCollector(Tracer tracer)
+        public MongoDBCommandAdapter(Tracer tracer)
         {
             _diagnosticSourceSubscriber = new DiagnosticSourceSubscriber(new CommandListener(DiagnosticsActivityEventSubscriber.ActivityName, tracer), null);
             _diagnosticSourceSubscriber.Subscribe();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Pipeline;
 
@@ -38,6 +39,11 @@ namespace NServiceBus.Diagnostics
             else
             {
                 activity.Start();
+            }
+
+            foreach (var header in context.Headers.Where(kvp => kvp.Key.StartsWith("NServiceBus")))
+            {
+                activity.AddTag(header.Key.Replace("NServiceBus.", ""), header.Value);
             }
 
             return activity;

@@ -88,8 +88,8 @@ namespace ChildWorkerService
                             {
                                 c.InstrumentationKey = context.Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
                             })
-                            .AddNServiceBusCollector()
-                            .AddMongoDBCollector()
+                            .AddNServiceBusAdapter()
+                            .AddMongoDBAdapter()
                             .AddRequestCollector()
                             .AddDependencyCollector();
                     });

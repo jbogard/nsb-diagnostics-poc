@@ -1,8 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using NServiceBus.Settings;
-using OpenTelemetry.Collector;
+using NServiceBus.Transport;
+using OpenTelemetry.Adapter;
 using OpenTelemetry.Trace;
 
 namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
@@ -27,24 +26,35 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
         {
             if (payload == null)
             {
-                CollectorEventSource.Log.NullPayload("ProcessMessageListener.OnStartActivity");
+                AdapterEventSource.Log.NullPayload("ProcessMessageListener.OnStartActivity");
                 return;
             }
 
             var settings = payload.Context.Builder.Build<ReadOnlySettings>();
 
+            var logicalAddress = settings.LogicalAddress();
+            var physicalAddress = settings.GetTransportAddress(logicalAddress);
+            var localAddress = settings.LocalAddress();
+            var instanceSpecificQueue = settings.InstanceSpecificQueue();
+            var endpointName = settings.EndpointName();
+            var infrastructure = settings.Get<TransportInfrastructure>();
+            var definition = settings.Get<TransportDefinition>();
+            //var connection = settings.Get("NServiceBus.Transport.Transport");
+            // transport connnection string
+            
             Tracer.StartActiveSpanFromActivity(settings.LogicalAddress().ToString(), activity, SpanKind.Consumer, out var span);
 
             if (span.IsRecording)
             {
                 span.SetAttribute("messaging.message_id", payload.Context.Message.MessageId);
                 span.SetAttribute("messaging.operation", "process");
+                span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Message.Body.Length);
 
                 span.ApplyContext(settings, payload.Context.MessageHeaders);
 
-                foreach (var header in payload.Context.MessageHeaders.Where(pair => pair.Key.StartsWith("NServiceBus.", StringComparison.OrdinalIgnoreCase)))
+                foreach (var tag in activity.Tags)
                 {
-                    span.SetAttribute(header.Key, header.Value);
+                    span.SetAttribute($"messaging.nservicebus.{tag.Key.ToLowerInvariant()}", tag.Value);
                 }
             }
         }

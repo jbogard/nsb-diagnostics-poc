@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using NServiceBus.Routing;
 using NServiceBus.Settings;
-using OpenTelemetry.Collector;
+using OpenTelemetry.Adapter;
 using OpenTelemetry.Trace;
 
 namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
@@ -28,7 +28,7 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
         {
             if (payload == null)
             {
-                CollectorEventSource.Log.NullPayload("SendMessageListener.OnStartActivity");
+                AdapterEventSource.Log.NullPayload("SendMessageListener.OnStartActivity");
                 return;
             }
 
@@ -57,13 +57,13 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             if (span.IsRecording)
             {
                 span.SetAttribute("messaging.message_id", payload.Context.MessageId);
+                span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Body.Length);
 
                 span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
 
-                foreach (var header in payload.Context.Headers.Where(pair =>
-                    pair.Key.StartsWith("NServiceBus.", StringComparison.OrdinalIgnoreCase)))
+                foreach (var tag in activity.Tags)
                 {
-                    span.SetAttribute(header.Key, header.Value);
+                    span.SetAttribute($"messaging.nservicebus.{tag.Key.ToLowerInvariant()}", tag.Value);
                 }
             }
         }
