@@ -32,6 +32,29 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
                 return;
             }
 
+            var span = StartSpanFromActivity(activity, payload);
+
+            if (span.IsRecording)
+            {
+                SetSpanAttributes(activity, payload, span);
+            }
+        }
+
+        private static void SetSpanAttributes(Activity activity, BeforeSendMessage payload, TelemetrySpan span)
+        {
+            span.SetAttribute("messaging.message_id", payload.Context.MessageId);
+            span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Body.Length);
+
+            span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
+
+            foreach (var tag in activity.Tags)
+            {
+                span.SetAttribute($"messaging.nservicebus.{tag.Key.ToLowerInvariant()}", tag.Value);
+            }
+        }
+
+        private TelemetrySpan StartSpanFromActivity(Activity activity, BeforeSendMessage payload)
+        {
             payload.Context.Headers.TryGetValue(Headers.MessageIntent, out var intent);
 
             var routes = payload.Context.RoutingStrategies
@@ -53,19 +76,7 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             var operationName = $"{intent ?? activity.OperationName} {string.Join(", ", routes)}";
 
             Tracer.StartActiveSpanFromActivity(operationName, activity, SpanKind.Producer, out var span);
-
-            if (span.IsRecording)
-            {
-                span.SetAttribute("messaging.message_id", payload.Context.MessageId);
-                span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Body.Length);
-
-                span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
-
-                foreach (var tag in activity.Tags)
-                {
-                    span.SetAttribute($"messaging.nservicebus.{tag.Key.ToLowerInvariant()}", tag.Value);
-                }
-            }
+            return span;
         }
 
         private void ProcessEvent(Activity activity, AfterSendMessage payload)
