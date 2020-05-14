@@ -32,16 +32,6 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
             var settings = payload.Context.Builder.Build<ReadOnlySettings>();
 
-            var logicalAddress = settings.LogicalAddress();
-            var physicalAddress = settings.GetTransportAddress(logicalAddress);
-            var localAddress = settings.LocalAddress();
-            var instanceSpecificQueue = settings.InstanceSpecificQueue();
-            var endpointName = settings.EndpointName();
-            var infrastructure = settings.Get<TransportInfrastructure>();
-            var definition = settings.Get<TransportDefinition>();
-            //var connection = settings.Get("NServiceBus.Transport.Transport");
-            // transport connnection string
-            
             Tracer.StartActiveSpanFromActivity(settings.LogicalAddress().ToString(), activity, SpanKind.Consumer, out var span);
 
             if (span.IsRecording)
