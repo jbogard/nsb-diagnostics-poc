@@ -10,23 +10,24 @@ namespace MongoDB.Driver.Core.Extensions.SystemDiagnostics
     {
         public const string ActivityName = "MongoDB.Driver.Core.Events.Command";
 
-        private readonly ReflectionEventSubscriber _subscriber;
         private static readonly DiagnosticSource _diagnosticListener
             = new DiagnosticListener(ActivityName);
 
+        private readonly ReflectionEventSubscriber _subscriber;
+
         public DiagnosticsActivityEventSubscriber() =>
-            _subscriber = new ReflectionEventSubscriber(this, bindingFlags: BindingFlags.Instance | BindingFlags.NonPublic);
+            _subscriber = new ReflectionEventSubscriber(this, 
+                bindingFlags: BindingFlags.Instance | BindingFlags.NonPublic);
 
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler) 
             => _subscriber.TryGetEventHandler(out handler);
 
-        private ConcurrentDictionary<int, Activity> _activityMap = new ConcurrentDictionary<int, Activity>();
+        private readonly ConcurrentDictionary<int, Activity> _activityMap 
+            = new ConcurrentDictionary<int, Activity>();
 
         private void Handle(CommandStartedEvent @event)
         {
             var activity = new Activity(ActivityName);
-
-            _diagnosticListener.OnActivityImport(activity, @event);
 
             if (_diagnosticListener.IsEnabled(CommandStarted.EventName, @event))
             {

@@ -40,19 +40,6 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             }
         }
 
-        private static void SetSpanAttributes(Activity activity, BeforeSendMessage payload, TelemetrySpan span)
-        {
-            span.SetAttribute("messaging.message_id", payload.Context.MessageId);
-            span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Body.Length);
-
-            span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
-
-            foreach (var tag in activity.Tags)
-            {
-                span.SetAttribute($"messaging.nservicebus.{tag.Key.ToLowerInvariant()}", tag.Value);
-            }
-        }
-
         private TelemetrySpan StartSpanFromActivity(Activity activity, BeforeSendMessage payload)
         {
             payload.Context.Headers.TryGetValue(Headers.MessageIntent, out var intent);
@@ -77,6 +64,19 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
             Tracer.StartActiveSpanFromActivity(operationName, activity, SpanKind.Producer, out var span);
             return span;
+        }
+
+        private static void SetSpanAttributes(Activity activity, BeforeSendMessage payload, TelemetrySpan span)
+        {
+            span.SetAttribute("messaging.message_id", payload.Context.MessageId);
+            span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Body.Length);
+
+            span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
+
+            foreach (var tag in activity.Tags)
+            {
+                span.SetAttribute($"messaging.nservicebus.{tag.Key.ToLowerInvariant()}", tag.Value);
+            }
         }
 
         private void ProcessEvent(Activity activity, AfterSendMessage payload)

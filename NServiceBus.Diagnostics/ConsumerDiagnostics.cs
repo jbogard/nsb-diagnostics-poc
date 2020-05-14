@@ -13,7 +13,9 @@ namespace NServiceBus.Diagnostics
         private static readonly DiagnosticSource _diagnosticListener 
             = new DiagnosticListener(Constants.ConsumerActivityName);
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public override async Task Invoke(
+            IIncomingPhysicalMessageContext context, 
+            Func<Task> next)
         {
             var activity = StartActivity(context);
 
