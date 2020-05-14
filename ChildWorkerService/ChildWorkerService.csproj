@@ -18,8 +18,8 @@
     <PackageReference Include="OpenTelemetry.Collector.AspNetCore" Version="0.2.0-alpha.253" />
     <PackageReference Include="OpenTelemetry.Collector.Dependencies" Version="0.2.0-alpha.253" />
     <PackageReference Include="OpenTelemetry.Exporter.ApplicationInsights" Version="0.2.0-alpha.275" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.2.0-alpha.277" />
-    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="0.2.0-alpha.277" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.2.0-alpha.283" />
+    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="0.2.0-alpha.283" />
     <PackageReference Include="OpenTelemetry.Hosting" Version="0.2.0-alpha.258" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>

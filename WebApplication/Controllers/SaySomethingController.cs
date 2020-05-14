@@ -31,6 +31,8 @@ namespace WebApplication.Controllers
                 Id = Guid.NewGuid()
             };
 
+            throw new Exception("Blow Up");
+
             _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
 
             await _messageSession.Send(command);
