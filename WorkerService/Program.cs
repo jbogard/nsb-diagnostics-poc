@@ -72,8 +72,8 @@ namespace WorkerService
                                 c.InstrumentationKey = context.Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
                             })
                             .AddNServiceBusAdapter()
-                            .AddRequestCollector()
-                            .AddDependencyCollector();
+                            .AddRequestAdapter()
+                            .AddDependencyAdapter();
                     });
                 })
         ;

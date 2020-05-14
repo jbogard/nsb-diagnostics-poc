@@ -90,8 +90,8 @@ namespace ChildWorkerService
                             })
                             .AddNServiceBusAdapter()
                             .AddMongoDBAdapter()
-                            .AddRequestCollector()
-                            .AddDependencyCollector();
+                            .AddRequestAdapter()
+                            .AddDependencyAdapter();
                     });
                 })
         ;

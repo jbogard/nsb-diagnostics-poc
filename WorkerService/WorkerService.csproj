@@ -13,12 +13,13 @@
     <PackageReference Include="NServiceBus.MicrosoftLogging.Hosting" Version="1.3.1" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="5.2.0" />
     <PackageReference Include="NServiceBus.SagaAudit" Version="3.0.1" />
-    <PackageReference Include="OpenTelemetry.Collector.AspNetCore" Version="0.2.0-alpha.253" />
-    <PackageReference Include="OpenTelemetry.Collector.Dependencies" Version="0.2.0-alpha.253" />
+    <PackageReference Include="OpenTelemetry.Adapter.AspNetCore" Version="0.2.0-alpha.283" />
+    <PackageReference Include="OpenTelemetry.Adapter.Dependencies" Version="0.2.0-alpha.283" />
     <PackageReference Include="OpenTelemetry.Exporter.ApplicationInsights" Version="0.2.0-alpha.275" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="0.2.0-alpha.283" />
     <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.2.0-alpha.283" />
     <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="0.2.0-alpha.283" />
-    <PackageReference Include="OpenTelemetry.Hosting" Version="0.2.0-alpha.258" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="0.2.0-alpha.283" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
