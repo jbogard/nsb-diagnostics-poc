@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using NServiceBus.Pipeline;
 using NServiceBus.Settings;
 using NServiceBus.Transport;
 using OpenTelemetry.Adapter;
@@ -14,33 +15,23 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
         public override void OnStartActivity(Activity activity, object payload)
         {
-            ProcessEvent(activity, payload as BeforeProcessMessage);
-        }
-
-        public override void OnStopActivity(Activity activity, object payload)
-        {
-            ProcessEvent(activity, payload as AfterProcessMessage);
-        }
-
-        private void ProcessEvent(Activity activity, BeforeProcessMessage payload)
-        {
-            if (payload == null)
+            if (!(payload is IIncomingPhysicalMessageContext context))
             {
                 AdapterEventSource.Log.NullPayload("ProcessMessageListener.OnStartActivity");
                 return;
             }
 
-            var settings = payload.Context.Builder.Build<ReadOnlySettings>();
+            var settings = context.Builder.Build<ReadOnlySettings>();
 
             Tracer.StartActiveSpanFromActivity(settings.LogicalAddress().ToString(), activity, SpanKind.Consumer, out var span);
 
             if (span.IsRecording)
             {
-                span.SetAttribute("messaging.message_id", payload.Context.Message.MessageId);
+                span.SetAttribute("messaging.message_id", context.Message.MessageId);
                 span.SetAttribute("messaging.operation", "process");
-                span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Message.Body.Length);
+                span.SetAttribute("messaging.message_payload_size_bytes", context.Message.Body.Length);
 
-                span.ApplyContext(settings, payload.Context.MessageHeaders);
+                span.ApplyContext(settings, context.MessageHeaders);
 
                 foreach (var tag in activity.Tags)
                 {
@@ -49,7 +40,7 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             }
         }
 
-        private void ProcessEvent(Activity activity, AfterProcessMessage payload)
+        public override void OnStopActivity(Activity activity, object payload)
         {
             if (Tracer.CurrentSpan.IsRecording)
             {

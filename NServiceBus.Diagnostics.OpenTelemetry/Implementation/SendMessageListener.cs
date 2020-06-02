@@ -1,6 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
+using NServiceBus.Pipeline;
 using NServiceBus.Routing;
 using NServiceBus.Settings;
 using OpenTelemetry.Adapter;
@@ -16,36 +16,31 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
 
         public override void OnStartActivity(Activity activity, object payload)
         {
-            ProcessEvent(activity, payload as BeforeSendMessage);
-        }
-
-        public override void OnStopActivity(Activity activity, object payload)
-        {
-            ProcessEvent(activity, payload as AfterSendMessage);
-        }
-
-        private void ProcessEvent(Activity activity, BeforeSendMessage payload)
-        {
-            if (payload == null)
+            if (!(payload is IOutgoingPhysicalMessageContext context))
             {
                 AdapterEventSource.Log.NullPayload("SendMessageListener.OnStartActivity");
                 return;
             }
 
-            var span = StartSpanFromActivity(activity, payload);
+            var span = StartSpanFromActivity(activity, context);
 
             if (span.IsRecording)
             {
-                SetSpanAttributes(activity, payload, span);
+                SetSpanAttributes(activity, context, span);
             }
         }
 
-        private TelemetrySpan StartSpanFromActivity(Activity activity, BeforeSendMessage payload)
+        public override void OnStopActivity(Activity activity, object payload)
         {
-            payload.Context.Headers.TryGetValue(Headers.MessageIntent, out var intent);
+            Tracer.CurrentSpan.End();
+        }
 
-            var routes = payload.Context.RoutingStrategies
-                .Select(r => r.Apply(payload.Context.Headers))
+        private TelemetrySpan StartSpanFromActivity(Activity activity, IOutgoingPhysicalMessageContext context)
+        {
+            context.Headers.TryGetValue(Headers.MessageIntent, out var intent);
+
+            var routes = context.RoutingStrategies
+                .Select(r => r.Apply(context.Headers))
                 .Select(t =>
                 {
                     switch (t)
@@ -66,12 +61,12 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             return span;
         }
 
-        private static void SetSpanAttributes(Activity activity, BeforeSendMessage payload, TelemetrySpan span)
+        private static void SetSpanAttributes(Activity activity, IOutgoingPhysicalMessageContext context, TelemetrySpan span)
         {
-            span.SetAttribute("messaging.message_id", payload.Context.MessageId);
-            span.SetAttribute("messaging.message_payload_size_bytes", payload.Context.Body.Length);
+            span.SetAttribute("messaging.message_id", context.MessageId);
+            span.SetAttribute("messaging.message_payload_size_bytes", context.Body.Length);
 
-            span.ApplyContext(payload.Context.Builder.Build<ReadOnlySettings>(), payload.Context.Headers);
+            span.ApplyContext(context.Builder.Build<ReadOnlySettings>(), context.Headers);
 
             foreach (var tag in activity.Tags)
             {
@@ -79,9 +74,5 @@ namespace NServiceBus.Diagnostics.OpenTelemetry.Implementation
             }
         }
 
-        private void ProcessEvent(Activity activity, AfterSendMessage payload)
-        {
-            Tracer.CurrentSpan.End();
-        }
     }
 }

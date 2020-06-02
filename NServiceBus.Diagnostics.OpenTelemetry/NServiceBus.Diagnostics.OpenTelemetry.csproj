@@ -5,11 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NServiceBus.Extensions.Diagnostics" Version="0.0.0-alpha.0.14" />
     <PackageReference Include="OpenTelemetry" Version="0.2.0-alpha.283" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Diagnostics\NServiceBus.Diagnostics.csproj" />
   </ItemGroup>
 
 </Project>

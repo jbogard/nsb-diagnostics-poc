@@ -30,28 +30,28 @@ namespace WebApplication
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
             });
 
-            services.AddOpenTelemetry(builder =>
-            {
-                builder
-                    .UseZipkin(o =>
-                    {
-                        o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                        o.ServiceName = Program.EndpointName;
-                    })
-                    .UseJaeger(c =>
-                    {
-                        c.AgentHost = "localhost";
-                        c.AgentPort = 6831;
-                        c.ServiceName = Program.EndpointName;
-                    })
-                    .UseApplicationInsights(c =>
-                    {
-                        c.InstrumentationKey = Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-                    })
-                    .AddNServiceBusAdapter()
-                    .AddRequestAdapter()
-                    .AddDependencyAdapter(configureSqlAdapterOptions: opt => opt.CaptureTextCommandContent = true);
-            });
+            services.AddOpenTelemetry(builder => builder
+                .UseZipkin(o =>
+                {
+                    o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+                    o.ServiceName = Program.EndpointName;
+                })
+                .UseJaeger(c =>
+                {
+                    c.AgentHost = "localhost";
+                    c.AgentPort = 6831;
+                    c.ServiceName = Program.EndpointName;
+                })
+                .AddNServiceBusAdapter()
+                .AddRequestAdapter()
+                .AddDependencyAdapter(configureSqlAdapterOptions: 
+                    opt => opt.CaptureTextCommandContent = true));
+
+            //    .UseApplicationInsights(c =>
+            //{
+            //    c.InstrumentationKey = Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
+            //})
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

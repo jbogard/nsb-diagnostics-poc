@@ -11,7 +11,7 @@ namespace NServiceBus.Diagnostics.OpenTelemetry
 
         public NServiceBusSendAdapter(Tracer tracer)
         {
-            _diagnosticSourceSubscriber = new DiagnosticSourceSubscriber(new SendMessageListener("NServiceBus.Diagnostics.Send", tracer), null);
+            _diagnosticSourceSubscriber = new DiagnosticSourceSubscriber(new SendMessageListener("NServiceBus.Extensions.Diagnostics.OutgoingPhysicalMessage", tracer), null);
             _diagnosticSourceSubscriber.Subscribe();
         }
 
