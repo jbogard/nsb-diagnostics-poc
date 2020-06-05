@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
-using NServiceBus.Diagnostics.OpenTelemetry;
+using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
 using OpenTelemetry.Trace.Configuration;
 
@@ -66,10 +66,6 @@ namespace WorkerService
                                 c.AgentHost = "localhost";
                                 c.AgentPort = 6831;
                                 c.ServiceName = EndpointName;
-                            })
-                            .UseApplicationInsights(c =>
-                            {
-                                c.InstrumentationKey = context.Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
                             })
                             .AddNServiceBusAdapter()
                             .AddRequestAdapter()

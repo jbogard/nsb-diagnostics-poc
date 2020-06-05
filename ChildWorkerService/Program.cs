@@ -1,14 +1,13 @@
 using System;
 using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Mongo2Go;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using MongoDB.Driver.Core.Extensions.OpenTelemetry;
-using MongoDB.Driver.Core.Extensions.SystemDiagnostics;
 using NServiceBus;
-using NServiceBus.Diagnostics.OpenTelemetry;
+using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
 using OpenTelemetry.Trace.Configuration;
 
@@ -64,7 +63,7 @@ namespace ChildWorkerService
                     };
                     var mongoUrl = urlBuilder.ToMongoUrl();
                     var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
-                    mongoClientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
+                    mongoClientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber(new DiagnosticListener(DiagnosticsActivityEventSubscriber.ActivityName)));
                     var mongoClient = new MongoClient(mongoClientSettings);
                     services.AddSingleton(mongoUrl);
                     services.AddSingleton(mongoClient);
@@ -83,10 +82,6 @@ namespace ChildWorkerService
                                 c.AgentHost = "localhost";
                                 c.AgentPort = 6831;
                                 c.ServiceName = EndpointName;
-                            })
-                            .UseApplicationInsights(c =>
-                            {
-                                c.InstrumentationKey = context.Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
                             })
                             .AddNServiceBusAdapter()
                             .AddMongoDBAdapter()

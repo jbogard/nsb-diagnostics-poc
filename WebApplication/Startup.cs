@@ -6,8 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using NServiceBus.Diagnostics.OpenTelemetry;
 using OpenTelemetry.Trace.Configuration;
+using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 
 namespace WebApplication
 {
@@ -46,11 +46,6 @@ namespace WebApplication
                 .AddRequestAdapter()
                 .AddDependencyAdapter(configureSqlAdapterOptions: 
                     opt => opt.CaptureTextCommandContent = true));
-
-            //    .UseApplicationInsights(c =>
-            //{
-            //    c.InstrumentationKey = Configuration.GetValue<string>("ApplicationInsights:InstrumentationKey");
-            //})
 
         }
 

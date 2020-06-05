@@ -7,23 +7,23 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
+    <PackageReference Include="NServiceBus.Extensions.Diagnostics" Version="0.0.0-alpha.0.17" />
+    <PackageReference Include="NServiceBus.Extensions.Diagnostics.OpenTelemetry" Version="0.0.0-alpha.0.17" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.0.1" />
     <PackageReference Include="NServiceBus.Json" Version="1.0.3" />
     <PackageReference Include="NServiceBus.MicrosoftLogging.Hosting" Version="1.3.1" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="5.2.0" />
-    <PackageReference Include="OpenTelemetry.Adapter.AspNetCore" Version="0.2.0-alpha.283" />
-    <PackageReference Include="OpenTelemetry.Adapter.Dependencies" Version="0.2.0-alpha.283" />
-    <PackageReference Include="OpenTelemetry.Exporter.ApplicationInsights" Version="0.2.0-alpha.275" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="0.2.0-alpha.283" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.2.0-alpha.283" />
-    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="0.2.0-alpha.283" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="0.2.0-alpha.283" />
+    <PackageReference Include="OpenTelemetry.Adapter.AspNetCore" Version="0.2.0-alpha.275" />
+    <PackageReference Include="OpenTelemetry.Adapter.Dependencies" Version="0.2.0-alpha.275" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="0.2.0-alpha.275" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.2.0-alpha.275" />
+    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="0.2.0-alpha.275" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="0.2.0-alpha.275" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Diagnostics.OpenTelemetry\NServiceBus.Diagnostics.OpenTelemetry.csproj" />
     <ProjectReference Include="..\WebApplication.Messages\WebApplication.Messages.csproj" />
     <ProjectReference Include="..\WorkerService.Messages\WorkerService.Messages.csproj" />
   </ItemGroup>
