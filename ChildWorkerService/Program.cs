@@ -83,10 +83,10 @@ namespace ChildWorkerService
                                 c.AgentPort = 6831;
                                 c.ServiceName = EndpointName;
                             })
-                            .AddNServiceBusAdapter()
-                            .AddMongoDBAdapter()
+                            .AddNServiceBusAdapter(opt => opt.CaptureMessageBody = true)
+                            .AddMongoDBAdapter(opt => opt.CaptureCommandText = true)
                             .AddRequestAdapter()
-                            .AddDependencyAdapter();
+                            .AddDependencyAdapter(configureSqlAdapterOptions: opt => opt.CaptureTextCommandContent = true);
                     });
                 })
         ;

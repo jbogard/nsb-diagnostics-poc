@@ -23,7 +23,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get(string message)
+        public async Task<ActionResult<Guid>> Get(string message)
         {
             var command = new SaySomething
             {
@@ -31,15 +31,17 @@ namespace WebApplication.Controllers
                 Id = Guid.NewGuid()
             };
 
+            Activity.Current.AddBaggage("operation.id", command.Id.ToString());
+
             _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
 
             await _messageSession.Send(command);
 
-            return Accepted();
+            return Accepted(command.Id);
         }
 
         [HttpGet("else")]
-        public async Task<ActionResult> Else(string message)
+        public async Task<ActionResult<Guid>> Else(string message)
         {
             var @event = new SomethingSaid
             {
@@ -47,11 +49,13 @@ namespace WebApplication.Controllers
                 Id = Guid.NewGuid()
             };
 
+            Activity.Current.AddBaggage("operation.id", @event.Id.ToString());
+
             _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
 
             await _messageSession.Publish(@event);
 
-            return Accepted();
+            return Accepted(@event.Id);
         }
 
     }

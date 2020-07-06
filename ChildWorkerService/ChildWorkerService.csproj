@@ -11,10 +11,10 @@
     <PackageReference Include="Mongo2Go" Version="2.2.12" />
     <PackageReference Include="MongoDB.Driver" Version="2.11.0-beta1" />
     <PackageReference Include="MongoDB.Driver.Core" Version="2.11.0-beta1" />
-    <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="0.0.0-alpha.0.5" />
-    <PackageReference Include="MongoDB.Driver.Core.Extensions.OpenTelemetry" Version="0.0.0-alpha.0.5" />
-    <PackageReference Include="NServiceBus.Extensions.Diagnostics" Version="0.0.0-alpha.0.17" />
-    <PackageReference Include="NServiceBus.Extensions.Diagnostics.OpenTelemetry" Version="0.0.0-alpha.0.17" />
+    <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="0.0.0-alpha.0.10" />
+    <PackageReference Include="MongoDB.Driver.Core.Extensions.OpenTelemetry" Version="0.0.0-alpha.0.10" />
+    <PackageReference Include="NServiceBus.Extensions.Diagnostics" Version="0.0.0-alpha.0.24" />
+    <PackageReference Include="NServiceBus.Extensions.Diagnostics.OpenTelemetry" Version="0.0.0-alpha.0.24" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.0.1" />
     <PackageReference Include="NServiceBus.Json" Version="1.0.3" />
     <PackageReference Include="NServiceBus.MicrosoftLogging.Hosting" Version="1.3.1" />

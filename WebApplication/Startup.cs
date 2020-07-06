@@ -42,7 +42,7 @@ namespace WebApplication
                     c.AgentPort = 6831;
                     c.ServiceName = Program.EndpointName;
                 })
-                .AddNServiceBusAdapter()
+                .AddNServiceBusAdapter(opt => opt.CaptureMessageBody = true)
                 .AddRequestAdapter()
                 .AddDependencyAdapter(configureSqlAdapterOptions: 
                     opt => opt.CaptureTextCommandContent = true));

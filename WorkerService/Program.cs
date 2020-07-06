@@ -67,7 +67,7 @@ namespace WorkerService
                                 c.AgentPort = 6831;
                                 c.ServiceName = EndpointName;
                             })
-                            .AddNServiceBusAdapter()
+                            .AddNServiceBusAdapter(opt => opt.CaptureMessageBody = true)
                             .AddRequestAdapter()
                             .AddDependencyAdapter();
                     });
