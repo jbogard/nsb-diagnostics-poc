@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Net.Http;
 using ChildWorkerService.Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ namespace WorkerService
 {
     public class Program
     {
-        private const string EndpointName = "NsbActivities.WorkerService";
+        public const string EndpointName = "NsbActivities.WorkerService";
 
         public static void Main(string[] args)
         {
@@ -70,6 +71,10 @@ namespace WorkerService
                             .AddNServiceBusAdapter(opt => opt.CaptureMessageBody = true)
                             .AddRequestAdapter()
                             .AddDependencyAdapter();
+                    });
+                    services.AddScoped<Func<HttpClient>>(s => () => new HttpClient
+                    {
+                        BaseAddress = new Uri("https://localhost:5001")
                     });
                 })
         ;

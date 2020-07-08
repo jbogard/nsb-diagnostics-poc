@@ -15,7 +15,7 @@ namespace ChildWorkerService
 {
     public class Program
     {
-        private const string EndpointName = "NsbActivities.ChildWorkerService";
+        public const string EndpointName = "NsbActivities.ChildWorkerService";
 
         public static void Main(string[] args)
         {

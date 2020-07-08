@@ -11,6 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService.Messages", "W
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CE98ADE7-3D17-401F-97B9-9A5E585D2349}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
@@ -20,6 +21,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChildWorkerService.Messages", "ChildWorkerService.Messages\ChildWorkerService.Messages.csproj", "{E2A80797-3BFD-495D-9235-FE5FC6E04FDE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication.Messages", "WebApplication.Messages\WebApplication.Messages.csproj", "{CE13F70F-3828-4033-84CD-33656BDC9B85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{E774DDC4-307F-4B50-B1FB-419E6B2E98B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +54,10 @@ Global
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E774DDC4-307F-4B50-B1FB-419E6B2E98B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E774DDC4-307F-4B50-B1FB-419E6B2E98B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E774DDC4-307F-4B50-B1FB-419E6B2E98B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E774DDC4-307F-4B50-B1FB-419E6B2E98B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

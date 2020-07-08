@@ -12,19 +12,19 @@ namespace WorkerService
     public class GetTemperatureHandler : IHandleMessages<GetTemperature>
     {
         private readonly ILogger<GetTemperatureHandler> _logger;
+        private readonly Func<HttpClient> _httpClientFactory;
 
-        private static readonly HttpClient _httpClient = new HttpClient
+        public GetTemperatureHandler(ILogger<GetTemperatureHandler> logger, Func<HttpClient> httpClientFactory)
         {
-            BaseAddress = new Uri("https://localhost:5001")
-        };
-
-
-        public GetTemperatureHandler(ILogger<GetTemperatureHandler> logger)
-            => _logger = logger;
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
+        }
 
         public async Task Handle(GetTemperature message, IMessageHandlerContext context)
         {
-            var content = await _httpClient.GetStringAsync("/weatherforecast/today");
+            var httpClient = _httpClientFactory();
+
+            var content = await httpClient.GetStringAsync("/weatherforecast/today");
 
             dynamic json = Deserialize<ExpandoObject>(content);
 
