@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +11,12 @@ namespace IntegrationTests
 {
     public class SystemFixture : IDisposable
     {
+        public WebAppFactory WebAppHost { get; }
+
+        public WebApplicationFactory<Program> WorkerHost { get; }
+
+        public ChildWorkerServiceFactory ChildWorkerHost { get; }
+
         public SystemFixture()
         {
             ChildWorkerHost = new ChildWorkerServiceFactory();
@@ -21,16 +26,7 @@ namespace IntegrationTests
                     services.AddScoped<Func<HttpClient>>(s => () => WebAppHost.CreateClient());
                 }));
             WebAppHost = new WebAppFactory();
-            EndpointFixture = new EndpointFixture();
         }
-
-        public WebAppFactory WebAppHost { get; }
-
-        public WebApplicationFactory<Program> WorkerHost { get; }
-
-        public ChildWorkerServiceFactory ChildWorkerHost { get; }
-
-        public EndpointFixture EndpointFixture { get; }
 
         public void Start()
         {
@@ -44,7 +40,6 @@ namespace IntegrationTests
             WebAppHost?.Dispose();
             WorkerHost?.Dispose();
             ChildWorkerHost?.Dispose();
-            EndpointFixture?.Dispose();
         }
     }
 

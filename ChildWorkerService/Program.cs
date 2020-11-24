@@ -9,7 +9,7 @@ using MongoDB.Driver.Core.Extensions.OpenTelemetry;
 using NServiceBus;
 using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
-using OpenTelemetry.Trace.Configuration;
+using OpenTelemetry.Trace;
 
 namespace ChildWorkerService
 {
@@ -69,25 +69,21 @@ namespace ChildWorkerService
                     services.AddSingleton(mongoClient);
                     services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
                     services.AddHostedService<Mongo2GoService>();
-                    services.AddOpenTelemetry(builder =>
-                    {
-                        builder
-                            .UseZipkin(o =>
-                            {
-                                o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                                o.ServiceName = EndpointName;
-                            })
-                            .UseJaeger(c =>
-                            {
-                                c.AgentHost = "localhost";
-                                c.AgentPort = 6831;
-                                c.ServiceName = EndpointName;
-                            })
-                            .AddNServiceBusAdapter(opt => opt.CaptureMessageBody = true)
-                            .AddMongoDBAdapter(opt => opt.CaptureCommandText = true)
-                            .AddRequestAdapter()
-                            .AddDependencyAdapter(configureSqlAdapterOptions: opt => opt.CaptureTextCommandContent = true);
-                    });
+                    services.AddOpenTelemetry(builder => builder
+                        .UseZipkinExporter(o =>
+                        {
+                            o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+                            o.ServiceName = EndpointName;
+                        })
+                        .UseJaegerExporter(c =>
+                        {
+                            c.AgentHost = "localhost";
+                            c.AgentPort = 6831;
+                            c.ServiceName = EndpointName;
+                        })
+                        .AddNServiceBusInstrumentation(opt => opt.CaptureMessageBody = true)
+                        .AddMongoDBInstrumentation(opt => opt.CaptureCommandText = true)
+                        .AddAspNetCoreInstrumentation());
                 })
         ;
     }
