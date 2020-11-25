@@ -29,10 +29,10 @@ namespace WebApplication
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
             });
 
-            services.AddOpenTelemetryTracing(builder => builder
+            services.AddOpenTelemetryTracing(builder =>  builder
                 .AddAspNetCoreInstrumentation()
                 .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true)
-                .AddSource(nameof(NServiceBus.Extensions.Diagnostics))
+                .AddSource("NServiceBus.Extensions.Diagnostics")
                 .AddZipkinExporter(o =>
                 {
                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");

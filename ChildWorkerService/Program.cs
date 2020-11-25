@@ -5,10 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Mongo2Go;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
-using MongoDB.Driver.Core.Extensions.OpenTelemetry;
 using NServiceBus;
 using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
 using OpenTelemetry.Trace;
 
@@ -80,8 +78,8 @@ namespace ChildWorkerService
                     services.AddOpenTelemetryTracing(builder => builder
                         .AddAspNetCoreInstrumentation()
                         .AddSource(
-                            nameof(NServiceBus.Extensions.Diagnostics),
-                            nameof(MongoDB.Driver.Core.Extensions.DiagnosticSources))
+                            "NServiceBus.Extensions.Diagnostics",
+                            "MongoDB.Driver.Core.Extensions.DiagnosticSources")
                         .AddZipkinExporter(o =>
                         {
                             o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
