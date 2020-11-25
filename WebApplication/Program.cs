@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Json;
 using WorkerService.Messages;
 
@@ -45,7 +46,7 @@ namespace WebApplication
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseMicrosoftLogFactoryLogging()
-                .UseNServiceBus(hostBuilderContext =>
+                .UseNServiceBus(_ =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
@@ -64,7 +65,14 @@ namespace WebApplication
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
                     endpointConfiguration.PurgeOnStartup(true);
-               
+
+                    var settings = endpointConfiguration.GetSettings();
+
+                    settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions
+                    {
+                        CaptureMessageBody = true
+                    });
+
                     // configure endpoint here
                     return endpointConfiguration;
                 })

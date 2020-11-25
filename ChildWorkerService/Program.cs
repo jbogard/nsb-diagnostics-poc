@@ -7,6 +7,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using MongoDB.Driver.Core.Extensions.OpenTelemetry;
 using NServiceBus;
+using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 using NServiceBus.Json;
 using OpenTelemetry.Trace;
@@ -49,6 +50,13 @@ namespace ChildWorkerService
                     recoverability.Immediate(i => i.NumberOfRetries(1));
                     recoverability.Delayed(i => i.NumberOfRetries(0));
 
+                    var settings = endpointConfiguration.GetSettings();
+
+                    settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions
+                    {
+                        CaptureMessageBody = true
+                    });
+
                     // configure endpoint here
                     return endpointConfiguration;
                 })
@@ -63,27 +71,27 @@ namespace ChildWorkerService
                     };
                     var mongoUrl = urlBuilder.ToMongoUrl();
                     var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
-                    mongoClientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber(new DiagnosticListener(DiagnosticsActivityEventSubscriber.ActivityName)));
+                    mongoClientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions{CaptureCommandText = true}));
                     var mongoClient = new MongoClient(mongoClientSettings);
                     services.AddSingleton(mongoUrl);
                     services.AddSingleton(mongoClient);
                     services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
                     services.AddHostedService<Mongo2GoService>();
-                    services.AddOpenTelemetry(builder => builder
-                        .UseZipkinExporter(o =>
+                    services.AddOpenTelemetryTracing(builder => builder
+                        .AddAspNetCoreInstrumentation()
+                        .AddSource(
+                            nameof(NServiceBus.Extensions.Diagnostics),
+                            nameof(MongoDB.Driver.Core.Extensions.DiagnosticSources))
+                        .AddZipkinExporter(o =>
                         {
                             o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                             o.ServiceName = EndpointName;
                         })
-                        .UseJaegerExporter(c =>
+                        .AddJaegerExporter(c =>
                         {
                             c.AgentHost = "localhost";
                             c.AgentPort = 6831;
-                            c.ServiceName = EndpointName;
-                        })
-                        .AddNServiceBusInstrumentation(opt => opt.CaptureMessageBody = true)
-                        .AddMongoDBInstrumentation(opt => opt.CaptureCommandText = true)
-                        .AddAspNetCoreInstrumentation());
+                        }));
                 })
         ;
     }

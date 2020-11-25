@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
 using OpenTelemetry.Trace;
 
 namespace WebApplication
@@ -30,21 +29,21 @@ namespace WebApplication
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
             });
 
-            services.AddOpenTelemetry(builder => builder
-                .UseZipkinExporter(o =>
+            services.AddOpenTelemetryTracing(builder => builder
+                .AddAspNetCoreInstrumentation()
+                .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true)
+                .AddSource(nameof(NServiceBus.Extensions.Diagnostics))
+                .AddZipkinExporter(o =>
                 {
                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                     o.ServiceName = Program.EndpointName;
                 })
-                .UseJaegerExporter(c =>
+                .AddJaegerExporter(c =>
                 {
                     c.AgentHost = "localhost";
                     c.AgentPort = 6831;
-                    c.ServiceName = Program.EndpointName;
                 })
-                .AddNServiceBusInstrumentation(opt => opt.CaptureMessageBody = true)
-                .AddAspNetCoreInstrumentation()
-                .AddSqlClientDependencyInstrumentation(opt => opt.SetTextCommandContent = true));
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

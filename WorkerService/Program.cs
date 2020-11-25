@@ -2,11 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Net.Http;
 using ChildWorkerService.Messages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
-using NServiceBus.Extensions.Diagnostics.OpenTelemetry;
+using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Json;
 using OpenTelemetry.Trace;
 
@@ -49,26 +48,33 @@ namespace WorkerService
 
                     endpointConfiguration.PurgeOnStartup(true);
 
+                    var settings = endpointConfiguration.GetSettings();
+
+                    settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions
+                    {
+                        CaptureMessageBody = true
+                    });
+
                     // configure endpoint here
                     return endpointConfiguration;
                 })
-                .ConfigureServices((context, services) =>
+                .ConfigureServices((_, services) =>
                 {
-                    services.AddOpenTelemetry(builder => builder
-                        .UseZipkinExporter(o =>
+                    services.AddOpenTelemetryTracing(builder => builder
+                        .AddSource(nameof(NServiceBus.Extensions.Diagnostics))
+                        .AddHttpClientInstrumentation()
+                        .AddAspNetCoreInstrumentation()
+                        .AddZipkinExporter(o =>
                         {
                             o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
                             o.ServiceName = EndpointName;
                         })
-                        .UseJaegerExporter(c =>
+                        .AddJaegerExporter(c =>
                         {
                             c.AgentHost = "localhost";
                             c.AgentPort = 6831;
-                            c.ServiceName = EndpointName;
                         })
-                        .AddNServiceBusInstrumentation(opt => opt.CaptureMessageBody = true)
-                        .AddHttpClientInstrumentation()
-                        .AddAspNetCoreInstrumentation());
+                    );
 
                     services.AddScoped<Func<HttpClient>>(s => () => new HttpClient
                     {
