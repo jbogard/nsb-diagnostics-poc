@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChildWorkerService.Messages
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication.Messages", "WebApplication.Messages\WebApplication.Messages.csproj", "{CE13F70F-3828-4033-84CD-33656BDC9B85}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{C25C5155-5239-40DE-A92E-2F7D435DA0B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE13F70F-3828-4033-84CD-33656BDC9B85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
