@@ -32,7 +32,7 @@ namespace WebApplication
             services.AddOpenTelemetryTracing(builder =>  builder
                 .AddAspNetCoreInstrumentation()
                 .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true)
-                .AddSource("NServiceBus.Extensions.Diagnostics")
+                .AddNServiceBusInstrumentation()
                 .AddZipkinExporter(o =>
                 {
                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");

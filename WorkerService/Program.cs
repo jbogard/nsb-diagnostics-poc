@@ -61,7 +61,7 @@ namespace WorkerService
                 .ConfigureServices((_, services) =>
                 {
                     services.AddOpenTelemetryTracing(builder => builder
-                        .AddSource("NServiceBus.Extensions.Diagnostics")
+                        .AddNServiceBusInstrumentation()
                         .AddHttpClientInstrumentation()
                         .AddAspNetCoreInstrumentation()
                         .AddZipkinExporter(o =>
