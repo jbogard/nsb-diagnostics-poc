@@ -18,7 +18,25 @@ namespace ChildWorkerService
 
         public static void Main(string[] args)
         {
-            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            var listener = new ActivityListener
+            {
+                ShouldListenTo = _ => true,
+                ActivityStopped = activity =>
+                {
+                    foreach (var (key, value) in activity.Baggage)
+                    {
+                        activity.AddTag(key, value);
+                    }
+                }
+            };
+            ActivitySource.AddActivityListener(listener);
+
+
+
+
+
+
+
 
             CreateHostBuilder(args).Build().Run();
         }
@@ -58,7 +76,7 @@ namespace ChildWorkerService
                     // configure endpoint here
                     return endpointConfiguration;
                 })
-                .ConfigureServices((context, services) =>
+                .ConfigureServices(services =>
                 {
                     var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
                     

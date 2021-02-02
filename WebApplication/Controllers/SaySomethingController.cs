@@ -30,10 +30,16 @@ namespace WebApplication.Controllers
                 Message = message,
                 Id = Guid.NewGuid()
             };
+            
+            Activity.Current?.AddBaggage("cart.operation.id", command.Id.ToString());
 
-            Activity.Current.AddBaggage("operation.id", command.Id.ToString());
+
+            //Activity.Current?.AddTag("operation.id", command.Id.ToString());
+
 
             _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
+
+
 
             await _messageSession.Send(command);
 
@@ -49,9 +55,10 @@ namespace WebApplication.Controllers
                 Id = Guid.NewGuid()
             };
 
-            Activity.Current.AddBaggage("operation.id", @event.Id.ToString());
-
             _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
+
+            //Activity.Current?.AddTag("cart.operation.id", @event.Id.ToString());
+            Activity.Current?.AddBaggage("operation.id", @event.Id.ToString());
 
             await _messageSession.Publish(@event);
 
