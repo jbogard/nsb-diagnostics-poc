@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace WebApplication
@@ -30,13 +31,13 @@ namespace WebApplication
             });
 
             services.AddOpenTelemetryTracing(builder => builder
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Program.EndpointName))
                 .AddAspNetCoreInstrumentation()
-                .AddSqlClientInstrumentation(opt => opt.SetTextCommandContent = true)
+                .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
                 .AddNServiceBusInstrumentation()
                 .AddZipkinExporter(o =>
                 {
                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                    o.ServiceName = Program.EndpointName;
                 })
                 .AddJaegerExporter(c =>
                 {

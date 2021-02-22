@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using NServiceBus;
 using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Json;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace WorkerService
@@ -72,13 +73,13 @@ namespace WorkerService
                 .ConfigureServices((_, services) =>
                 {
                     services.AddOpenTelemetryTracing(builder => builder
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName))
                         .AddNServiceBusInstrumentation()
                         .AddHttpClientInstrumentation()
                         .AddAspNetCoreInstrumentation()
                         .AddZipkinExporter(o =>
                         {
                             o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                            o.ServiceName = EndpointName;
                         })
                         .AddJaegerExporter(c =>
                         {

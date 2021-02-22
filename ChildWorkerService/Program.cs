@@ -8,6 +8,7 @@ using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using NServiceBus;
 using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Json;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace ChildWorkerService
@@ -94,13 +95,13 @@ namespace ChildWorkerService
                     services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
                     services.AddHostedService<Mongo2GoService>();
                     services.AddOpenTelemetryTracing(builder => builder
+                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName))
                         .AddAspNetCoreInstrumentation()
                         .AddMongoDBInstrumentation()
                         .AddNServiceBusInstrumentation()
                         .AddZipkinExporter(o =>
                         {
                             o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                            o.ServiceName = EndpointName;
                         })
                         .AddJaegerExporter(c =>
                         {
