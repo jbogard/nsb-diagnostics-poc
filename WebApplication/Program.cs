@@ -65,7 +65,6 @@ namespace WebApplication
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseMicrosoftLogFactoryLogging()
                 .UseNServiceBus(_ =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);

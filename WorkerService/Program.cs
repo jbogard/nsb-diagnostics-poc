@@ -36,7 +36,6 @@ namespace WorkerService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseMicrosoftLogFactoryLogging()
                 .UseNServiceBus(hostBuilderContext =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);
