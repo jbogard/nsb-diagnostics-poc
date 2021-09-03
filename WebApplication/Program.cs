@@ -83,8 +83,6 @@ namespace WebApplication
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
-                    endpointConfiguration.PurgeOnStartup(true);
-
                     var settings = endpointConfiguration.GetSettings();
 
                     settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions

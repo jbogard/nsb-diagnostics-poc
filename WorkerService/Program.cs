@@ -55,9 +55,7 @@ namespace WorkerService
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
-                    endpointConfiguration.AuditSagaStateChanges("Particular.ServiceControl.2");
-
-                    endpointConfiguration.PurgeOnStartup(true);
+                    //endpointConfiguration.AuditSagaStateChanges("Particular.ServiceControl.2");
 
                     var settings = endpointConfiguration.GetSettings();
 
@@ -75,7 +73,6 @@ namespace WorkerService
                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName))
                         .AddNServiceBusInstrumentation()
                         .AddHttpClientInstrumentation()
-                        .AddAspNetCoreInstrumentation()
                         .AddZipkinExporter(o =>
                         {
                             o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");

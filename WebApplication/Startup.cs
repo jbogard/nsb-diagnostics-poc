@@ -32,7 +32,10 @@ namespace WebApplication
 
             services.AddOpenTelemetryTracing(builder => builder
                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Program.EndpointName))
-                .AddAspNetCoreInstrumentation()
+                .AddAspNetCoreInstrumentation(opt => opt.Enrich = (activity, key, value) =>
+                {
+                    Console.WriteLine($"Got an activity named {key}");
+                })
                 .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
                 .AddNServiceBusInstrumentation()
                 .AddZipkinExporter(o =>

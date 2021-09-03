@@ -60,8 +60,6 @@ namespace ChildWorkerService
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
-                    endpointConfiguration.PurgeOnStartup(true);
-
                     var recoverability = endpointConfiguration.Recoverability();
                     recoverability.Immediate(i => i.NumberOfRetries(1));
                     recoverability.Delayed(i => i.NumberOfRetries(0));
@@ -95,7 +93,6 @@ namespace ChildWorkerService
                     services.AddHostedService<Mongo2GoService>();
                     services.AddOpenTelemetryTracing(builder => builder
                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName))
-                        .AddAspNetCoreInstrumentation()
                         .AddMongoDBInstrumentation()
                         .AddNServiceBusInstrumentation()
                         .AddZipkinExporter(o =>
