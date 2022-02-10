@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
@@ -15,11 +16,15 @@ namespace WebApplication.Controllers
     {
         private readonly ILogger<SaySomethingController> _logger;
         private readonly IMessageSession _messageSession;
+        private readonly IHttpActivityFeature _activityFeature;
 
-        public SaySomethingController(ILogger<SaySomethingController> logger, IMessageSession messageSession)
+        public SaySomethingController(ILogger<SaySomethingController> logger, 
+            IMessageSession messageSession,
+            IHttpActivityFeature activityFeature)
         {
             _logger = logger;
             _messageSession = messageSession;
+            _activityFeature = activityFeature;
         }
 
         [HttpGet]
@@ -31,11 +36,7 @@ namespace WebApplication.Controllers
                 Id = Guid.NewGuid()
             };
             
-            Activity.Current?.AddBaggage("cart.operation.id", command.Id.ToString());
-
-
-            //Activity.Current?.AddTag("operation.id", command.Id.ToString());
-
+            _activityFeature.Activity.AddBaggage("cart.operation.id", command.Id.ToString());
 
             _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
 
@@ -58,7 +59,7 @@ namespace WebApplication.Controllers
             _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
 
             //Activity.Current?.AddTag("cart.operation.id", @event.Id.ToString());
-            Activity.Current?.AddBaggage("operation.id", @event.Id.ToString());
+            _activityFeature.Activity.AddBaggage("operation.id", @event.Id.ToString());
 
             await _messageSession.Publish(@event);
 
