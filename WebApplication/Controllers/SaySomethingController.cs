@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using WebApplication.Messages;
@@ -10,21 +11,46 @@ using WorkerService.Messages;
 
 namespace WebApplication.Controllers
 {
+    public class LoggingActionFilter : IAsyncActionFilter
+    {
+        private readonly ILogger<LoggingActionFilter> _logger;
+
+        public LoggingActionFilter(ILogger<LoggingActionFilter> logger) => _logger = logger;
+
+        public async Task OnActionExecutionAsync(
+            ActionExecutingContext context, 
+            ActionExecutionDelegate next)
+        {
+            var activity = new Activity("Logging Activity");
+
+            try
+            {
+                activity.Start();
+
+                _logger.LogInformation("Before the action");
+                
+                await next();
+            }
+            finally
+            {
+                _logger.LogInformation("After the action");
+
+                activity.Stop();
+            }
+        }
+    }
     [ApiController]
     [Route("[controller]")]
     public class SaySomethingController : ControllerBase
     {
         private readonly ILogger<SaySomethingController> _logger;
         private readonly IMessageSession _messageSession;
-        private readonly IHttpActivityFeature _activityFeature;
 
         public SaySomethingController(ILogger<SaySomethingController> logger, 
-            IMessageSession messageSession,
-            IHttpActivityFeature activityFeature)
+            IMessageSession messageSession)
         {
             _logger = logger;
             _messageSession = messageSession;
-            _activityFeature = activityFeature;
         }
 
         [HttpGet]
@@ -35,12 +61,9 @@ namespace WebApplication.Controllers
                 Message = message,
                 Id = Guid.NewGuid()
             };
+            var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
             
-            _activityFeature.Activity.AddBaggage("cart.operation.id", command.Id.ToString());
-
-            _logger.LogInformation("Sending message {message} with {id}", command.Message, command.Id);
-
-
+            activityFeature?.Activity.AddBaggage("cart.operation.id", command.Id.ToString());
 
             await _messageSession.Send(command);
 
@@ -55,11 +78,11 @@ namespace WebApplication.Controllers
                 Message = message,
                 Id = Guid.NewGuid()
             };
+            var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
 
             _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
 
-            //Activity.Current?.AddTag("cart.operation.id", @event.Id.ToString());
-            _activityFeature.Activity.AddBaggage("operation.id", @event.Id.ToString());
+            activityFeature?.Activity.AddBaggage("operation.id", @event.Id.ToString());
 
             await _messageSession.Publish(@event);
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using NServiceBus;
+using NServiceBus.Extensions.Diagnostics;
 
 namespace ChildWorkerService
 {
@@ -25,17 +26,18 @@ namespace ChildWorkerService
         {
             _logger.LogInformation("Yelling out {message}", message.Value);
 
-            //if (_coinFlip.Next(2) == 0)
-            //{
-            //    throw new Exception("Something went wrong!");
-            //}
-
             var collection = _database.GetCollection<Person>(nameof(Person));
 
             var count = await collection.CountDocumentsAsync(p => true);
             var rng = new Random();
 
-            var favoritePerson = await collection.AsQueryable().Skip(rng.Next((int)count)).FirstAsync();
+            var next = rng.Next((int)count);
+
+            var currentActivity = context.Extensions.Get<ICurrentActivity>();
+
+            currentActivity.Current?.AddTag("code.randomvalue", next);
+
+            var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync();
 
             await context.Reply(new MakeItYellResponse
             {

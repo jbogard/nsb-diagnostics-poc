@@ -17,7 +17,6 @@ namespace IntegrationTests
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .UseMicrosoftLogFactoryLogging()
                 .UseNServiceBus(hostBuilderContext =>
                 {
                     var endpoint = new EndpointConfiguration(WebApplication.Program.EndpointName);
@@ -47,7 +46,6 @@ namespace IntegrationTests
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .UseMicrosoftLogFactoryLogging()
                 .UseNServiceBus(hostBuilderContext =>
                 {
                     var endpoint = new EndpointConfiguration(WorkerService.Program.EndpointName);
@@ -74,7 +72,6 @@ namespace IntegrationTests
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .UseMicrosoftLogFactoryLogging()
                 .UseNServiceBus(hostBuilderContext =>
                 {
                     var endpoint = new EndpointConfiguration(ChildWorkerService.Program.EndpointName);
