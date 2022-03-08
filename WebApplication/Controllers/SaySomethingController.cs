@@ -11,34 +11,6 @@ using WorkerService.Messages;
 
 namespace WebApplication.Controllers
 {
-    public class LoggingActionFilter : IAsyncActionFilter
-    {
-        private readonly ILogger<LoggingActionFilter> _logger;
-
-        public LoggingActionFilter(ILogger<LoggingActionFilter> logger) => _logger = logger;
-
-        public async Task OnActionExecutionAsync(
-            ActionExecutingContext context, 
-            ActionExecutionDelegate next)
-        {
-            var activity = new Activity("Logging Activity");
-
-            try
-            {
-                activity.Start();
-
-                _logger.LogInformation("Before the action");
-                
-                await next();
-            }
-            finally
-            {
-                _logger.LogInformation("After the action");
-
-                activity.Stop();
-            }
-        }
-    }
     [ApiController]
     [Route("[controller]")]
     public class SaySomethingController : ControllerBase
