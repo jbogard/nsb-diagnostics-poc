@@ -18,9 +18,10 @@
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.1.0" />
     <PackageReference Include="NServiceBus.Json" Version="2.0.0" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="6.1.1" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.2.0-rc2" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.2.0-rc2" />
-    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="1.2.0-rc2" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.2.0-rc3" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.2.0-rc3" />
+    <PackageReference Include="OpenTelemetry.Exporter.Prometheus" Version="1.2.0-rc3" />
+    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="1.2.0-rc3" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9" />
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
