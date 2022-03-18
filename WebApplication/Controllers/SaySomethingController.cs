@@ -33,9 +33,10 @@ namespace WebApplication.Controllers
                 Message = message,
                 Id = Guid.NewGuid()
             };
+
             var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
-            
-            activityFeature?.Activity.AddBaggage("cart.operation.id", command.Id.ToString());
+
+            activityFeature?.Activity.AddBaggage("operation.id", command.Id.ToString());
 
             await _messageSession.Send(command);
 
@@ -50,11 +51,12 @@ namespace WebApplication.Controllers
                 Message = message,
                 Id = Guid.NewGuid()
             };
+
             var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
 
-            _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
-
             activityFeature?.Activity.AddBaggage("operation.id", @event.Id.ToString());
+
+            _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
 
             await _messageSession.Publish(@event);
 
