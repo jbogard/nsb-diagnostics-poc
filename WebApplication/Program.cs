@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using NServiceBus.Configuration.AdvancedExtensibility;
+using NServiceBus.Extensions.Diagnostics;
 using NServiceBus.Json;
 using WorkerService.Messages;
 
@@ -83,9 +86,11 @@ namespace WebApplication
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
+                    endpointConfiguration.EnableFeature<DiagnosticsMetricsFeature>();
+
                     var settings = endpointConfiguration.GetSettings();
 
-                    settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions
+                    settings.Set(new InstrumentationOptions
                     {
                         CaptureMessageBody = true
                     });
