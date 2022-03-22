@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Mongo2Go;
@@ -7,9 +9,12 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using NServiceBus;
 using NServiceBus.Configuration.AdvancedExtensibility;
+using NServiceBus.Extensions.Diagnostics;
 using NServiceBus.Json;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using InstrumentationOptions = MongoDB.Driver.Core.Extensions.DiagnosticSources.InstrumentationOptions;
 
 namespace ChildWorkerService
 {
@@ -71,40 +76,71 @@ namespace ChildWorkerService
                         CaptureMessageBody = true
                     });
 
+                    endpointConfiguration.EnableFeature<DiagnosticsMetricsFeature>();
+
+
                     // configure endpoint here
                     return endpointConfiguration;
                 })
-                .ConfigureServices(services =>
+                .ConfigureWebHostDefaults(webHostBuilder =>
                 {
-                    var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
-                    
-                    services.AddSingleton(runner);
-                    var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
+
+                    webHostBuilder.ConfigureServices(services =>
                     {
-                        DatabaseName = "dev"
-                    };
-                    var mongoUrl = urlBuilder.ToMongoUrl();
-                    var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
-                    mongoClientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions{CaptureCommandText = true}));
-                    var mongoClient = new MongoClient(mongoClientSettings);
-                    services.AddSingleton(mongoUrl);
-                    services.AddSingleton(mongoClient);
-                    services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
-                    services.AddHostedService<Mongo2GoService>();
-                    services.AddOpenTelemetryTracing(builder => builder
-                        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName))
-                        .AddMongoDBInstrumentation()
-                        .AddNServiceBusInstrumentation()
-                        .AddZipkinExporter(o =>
+                        var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
+
+                        services.AddSingleton(runner);
+                        var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
                         {
-                            o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                        })
-                        .AddJaegerExporter(c =>
+                            DatabaseName = "dev"
+                        };
+                        var mongoUrl = urlBuilder.ToMongoUrl();
+                        var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
+                        mongoClientSettings.ClusterConfigurator = cb =>
+                            cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions
+                                {CaptureCommandText = true}));
+                        var mongoClient = new MongoClient(mongoClientSettings);
+                        services.AddSingleton(mongoUrl);
+                        services.AddSingleton(mongoClient);
+                        services.AddTransient(provider =>
+                            provider.GetService<MongoClient>()
+                                .GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
+                        services.AddHostedService<Mongo2GoService>();
+                        var resourceBuilder = ResourceBuilder.CreateDefault().AddService(EndpointName);
+                        services.AddOpenTelemetryTracing(builder =>
                         {
-                            c.AgentHost = "localhost";
-                            c.AgentPort = 6831;
-                        }));
+                            builder
+                                .SetResourceBuilder(resourceBuilder)
+                                .AddMongoDBInstrumentation()
+                                .AddNServiceBusInstrumentation()
+                                .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
+                                .AddJaegerExporter(c =>
+                                {
+                                    c.AgentHost = "localhost";
+                                    c.AgentPort = 6831;
+                                });
+                        });
+
+
+                        services.AddOpenTelemetryMetrics(builder =>
+                        {
+                            builder.SetResourceBuilder(resourceBuilder)
+                                .AddMeter("NServiceBus.Extensions.Diagnostics")
+                                .AddPrometheusExporter(options =>
+                                {
+                                    options.ScrapeResponseCacheDurationMilliseconds = 0;
+                                });
+                        });
+
+                    });
+
+                    webHostBuilder.Configure(app =>
+                    {
+                        app.UseOpenTelemetryPrometheusScrapingEndpoint();
+                    });
                 })
-        ;
+
+
+            ;
     }
 }

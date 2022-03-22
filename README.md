@@ -19,3 +19,15 @@ Values based on https://github.com/open-telemetry/opentelemetry-specification/pu
 | `messaging.url` | Connection string such as `tibjmsnaming://localhost:7222` or `https://queue.amazonaws.com/80398EXAMPLE/MyQueue`. | No | |
 | `messaging.message_id` | A value used by the messaging system as an identifier for the message, represented as a string. | No | Message.MessageId |
 | `messaging.conversation_id` | A value identifying the conversation to which the message belongs, represented as a string. Sometimes called "Correlation ID". | No | "NServiceBus.ConversationId" header |
+
+
+## Prometheus
+
+To integrate with Prometheus, in the root run a Prometheus instance with Docker:
+
+```powershell
+docker run `
+    -p 9090:9090 `
+    -v ${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml `
+    prom/prometheus
+```

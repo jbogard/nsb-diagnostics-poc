@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -30,21 +32,33 @@ namespace WebApplication
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
             });
 
-            services.AddOpenTelemetryTracing(builder => builder
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(Program.EndpointName))
-                .AddAspNetCoreInstrumentation()
-                .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
-                .AddNServiceBusInstrumentation()
-                .AddZipkinExporter(o =>
-                {
-                    o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                })
-                .AddJaegerExporter(c =>
-                {
-                    c.AgentHost = "localhost";
-                    c.AgentPort = 6831;
-                })
-            );
+            var resourceBuilder = ResourceBuilder.CreateDefault().AddService(Program.EndpointName);
+            services.AddOpenTelemetryTracing(builder =>
+            {
+                builder
+                    .SetResourceBuilder(resourceBuilder)
+                    .AddAspNetCoreInstrumentation()
+                    .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
+                    .AddNServiceBusInstrumentation()
+                    .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
+                    .AddJaegerExporter(c =>
+                    {
+                        c.AgentHost = "localhost";
+                        c.AgentPort = 6831;
+                    });
+            });
+
+            services.AddOpenTelemetryMetrics(builder =>
+            {
+                builder
+                    .SetResourceBuilder(resourceBuilder)
+                    .AddAspNetCoreInstrumentation()
+                    .AddNServiceBusInstrumentation()
+                    .AddPrometheusExporter(options =>
+                    {
+                        options.ScrapeResponseCacheDurationMilliseconds = 0;
+                    });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +77,8 @@ namespace WebApplication
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication API V1");
             });
+
+            app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
             app.UseHttpsRedirection();
 
