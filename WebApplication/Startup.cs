@@ -59,6 +59,8 @@ namespace WebApplication
                         options.ScrapeResponseCacheDurationMilliseconds = 0;
                     });
             });
+
+            //services.AddHostedService<LoadGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

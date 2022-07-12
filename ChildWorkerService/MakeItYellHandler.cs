@@ -13,6 +13,7 @@ namespace ChildWorkerService
     {
         private readonly ILogger<MakeItYellHandler> _logger;
         private readonly IMongoDatabase _database;
+        private static readonly Random rng = new(Guid.NewGuid().GetHashCode());
 
         private static readonly Random _coinFlip = new Random();
 
@@ -29,7 +30,6 @@ namespace ChildWorkerService
             var collection = _database.GetCollection<Person>(nameof(Person));
 
             var count = await collection.CountDocumentsAsync(p => true);
-            var rng = new Random();
 
             var next = rng.Next((int)count);
 
@@ -38,6 +38,9 @@ namespace ChildWorkerService
             currentActivity.Current?.AddTag("code.randomvalue", next);
 
             var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync();
+
+            // add random jitter
+            await Task.Delay(rng.Next() % 1000);
 
             await context.Reply(new MakeItYellResponse
             {
