@@ -23,7 +23,7 @@ namespace IntegrationTests
             WorkerHost = new WorkerServiceFactory()
                 .WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
                 {
-                    services.AddScoped<Func<HttpClient>>(s => () => WebAppHost.CreateClient());
+                    services.AddScoped<Func<HttpClient>>(_ => () => WebAppHost.CreateClient());
                 }));
             WebAppHost = new WebAppFactory();
         }

@@ -1,30 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <UserSecretsId>dotnet-NsbActivities-59447BE1-881A-42DB-BE67-A3511A10EF1A</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
     <PackageReference Include="Mongo2Go" Version="3.1.3" />
-    <PackageReference Include="MongoDB.Driver" Version="2.13.1" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.13.1" />
-    <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="1.1.0" />
-    <PackageReference Include="MongoDB.Driver.Core.Extensions.OpenTelemetry" Version="1.0.0" />
-    <PackageReference Include="NServiceBus.Extensions.Diagnostics" Version="2.1.1" />
-    <PackageReference Include="NServiceBus.Extensions.Diagnostics.OpenTelemetry" Version="2.1.0-rc.1" />
-    <PackageReference Include="NServiceBus.Extensions.Hosting" Version="1.1.0" />
-    <PackageReference Include="NServiceBus.Json" Version="2.0.0" />
-    <PackageReference Include="NServiceBus.Metrics" Version="3.1.0" />
-    <PackageReference Include="NServiceBus.RabbitMQ" Version="6.1.1" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.3.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.3.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.13.3" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.13.3" />
+    <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="1.2.0" />
+    <PackageReference Include="MongoDB.Driver.Core.Extensions.OpenTelemetry" Version="1.1.0" />
+    <PackageReference Include="NServiceBus.Extensions.Hosting" Version="2.0.0" />
+    <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="3.0.0" />
+    <PackageReference Include="NServiceBus.Metrics" Version="4.0.0" />
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="8.0.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.3.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="1.3.1" />
     <PackageReference Include="OpenTelemetry.Exporter.Prometheus" Version="1.3.0-rc.2" />
-    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="1.3.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="1.3.1" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9.4" />
-    <PackageReference Include="System.Text.Json" Version="6.0.2" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

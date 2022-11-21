@@ -8,9 +8,6 @@ using Mongo2Go;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using NServiceBus;
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Extensions.Diagnostics;
-using NServiceBus.Json;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -49,15 +46,17 @@ namespace ChildWorkerService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseNServiceBus(hostBuilderContext =>
+                .UseNServiceBus(_ =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
-                    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+                    endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
 
-                    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-                    transport.ConnectionString("host=localhost");
-                    transport.UseConventionalRoutingTopology();
+                    var transport = new RabbitMQTransport(
+                        RoutingTopology.Conventional(QueueType.Classic),
+                        "host=localhost"
+                        );
+                    endpointConfiguration.UseTransport(transport);
 
                     endpointConfiguration.UsePersistence<LearningPersistence>();
 
@@ -69,15 +68,8 @@ namespace ChildWorkerService
                     recoverability.Immediate(i => i.NumberOfRetries(1));
                     recoverability.Delayed(i => i.NumberOfRetries(0));
 
-                    var settings = endpointConfiguration.GetSettings();
 
-                    settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions
-                    {
-                        CaptureMessageBody = true
-                    });
-
-                    endpointConfiguration.EnableFeature<DiagnosticsMetricsFeature>();
-
+                    endpointConfiguration.EnableOpenTelemetry();
 
                     // configure endpoint here
                     return endpointConfiguration;
@@ -112,7 +104,7 @@ namespace ChildWorkerService
                             builder
                                 .SetResourceBuilder(resourceBuilder)
                                 .AddMongoDBInstrumentation()
-                                .AddNServiceBusInstrumentation()
+                                .AddSource("NServiceBus.Core")
                                 .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
                                 .AddJaegerExporter(c =>
                                 {
@@ -125,7 +117,7 @@ namespace ChildWorkerService
                         services.AddOpenTelemetryMetrics(builder =>
                         {
                             builder.SetResourceBuilder(resourceBuilder)
-                                .AddMeter("NServiceBus.Extensions.Diagnostics")
+                                .AddMeter("NServiceBus.Core")
                                 .AddPrometheusExporter(options =>
                                 {
                                     options.ScrapeResponseCacheDurationMilliseconds = 0;

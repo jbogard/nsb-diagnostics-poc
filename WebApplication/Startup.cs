@@ -39,7 +39,7 @@ namespace WebApplication
                     .SetResourceBuilder(resourceBuilder)
                     .AddAspNetCoreInstrumentation()
                     .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
-                    .AddNServiceBusInstrumentation()
+                    .AddSource("NServiceBus.Core")
                     .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
                     .AddJaegerExporter(c =>
                     {
@@ -53,7 +53,7 @@ namespace WebApplication
                 builder
                     .SetResourceBuilder(resourceBuilder)
                     .AddAspNetCoreInstrumentation()
-                    .AddNServiceBusInstrumentation()
+                    .AddMeter("NServiceBus.Core")
                     .AddPrometheusExporter(options =>
                     {
                         options.ScrapeResponseCacheDurationMilliseconds = 0;

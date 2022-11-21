@@ -34,11 +34,11 @@ namespace WebApplication.Controllers
                 Id = Guid.NewGuid()
             };
 
+
             var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
 
-            activityFeature?.Activity.AddTag("dev.up", command.Id.ToString());
-
-            activityFeature?.Activity.AddBaggage("operation.id", command.Id.ToString());
+            activityFeature?.Activity.AddTag("card.id", command.Id);
+            activityFeature?.Activity.AddBaggage("card.id", command.Id.ToString());
 
 
             await _messageSession.Send(command);
@@ -56,11 +56,6 @@ namespace WebApplication.Controllers
             };
 
             _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
-
-
-            var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
-
-            activityFeature?.Activity.AddBaggage("operation.id", @event.Id.ToString());
 
             await _messageSession.Publish(@event);
 

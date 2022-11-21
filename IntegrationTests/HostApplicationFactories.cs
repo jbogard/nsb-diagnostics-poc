@@ -7,7 +7,6 @@ using Mongo2Go;
 using MongoDB.Driver;
 using NServiceBus;
 using NServiceBus.Extensions.IntegrationTesting;
-using NServiceBus.Json;
 using WorkerService.Messages;
 
 namespace IntegrationTests
@@ -17,7 +16,7 @@ namespace IntegrationTests
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .UseNServiceBus(hostBuilderContext =>
+                .UseNServiceBus(_ =>
                 {
                     var endpoint = new EndpointConfiguration(WebApplication.Program.EndpointName);
 
@@ -30,7 +29,7 @@ namespace IntegrationTests
                     });
 
                     endpoint.UsePersistence<LearningPersistence>();
-                    endpoint.UseSerialization<SystemJsonSerializer>();
+                    endpoint.UseSerialization<NewtonsoftJsonSerializer>();
 
                     return endpoint;
                 })
@@ -46,7 +45,7 @@ namespace IntegrationTests
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .UseNServiceBus(hostBuilderContext =>
+                .UseNServiceBus(_ =>
                 {
                     var endpoint = new EndpointConfiguration(WorkerService.Program.EndpointName);
 
@@ -59,11 +58,11 @@ namespace IntegrationTests
                     });
 
                     endpoint.UsePersistence<LearningPersistence>();
-                    endpoint.UseSerialization<SystemJsonSerializer>();
+                    endpoint.UseSerialization<NewtonsoftJsonSerializer>();
 
                     return endpoint;
                 })
-                .ConfigureWebHost(b => b.Configure(a => {}));
+                .ConfigureWebHost(b => b.Configure(_ => {}));
         }
     }
 
@@ -72,7 +71,7 @@ namespace IntegrationTests
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
-                .UseNServiceBus(hostBuilderContext =>
+                .UseNServiceBus(_ =>
                 {
                     var endpoint = new EndpointConfiguration(ChildWorkerService.Program.EndpointName);
 
@@ -81,7 +80,7 @@ namespace IntegrationTests
                     endpoint.AssemblyScanner().ExcludeAssemblies("WebApplication.dll", "WorkerService.dll");
 
                     endpoint.UsePersistence<LearningPersistence>();
-                    endpoint.UseSerialization<SystemJsonSerializer>();
+                    endpoint.UseSerialization<NewtonsoftJsonSerializer>();
 
                     return endpoint;
                 })
@@ -102,7 +101,7 @@ namespace IntegrationTests
                     services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
                     services.AddHostedService<ChildWorkerService.Mongo2GoService>();
                 })
-                .ConfigureWebHost(b => b.Configure(a => { }));
+                .ConfigureWebHost(b => b.Configure(_ => { }));
         }
     }
 }

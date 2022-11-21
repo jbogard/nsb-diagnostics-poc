@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using ChildWorkerService.Messages;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using NServiceBus;
-using NServiceBus.Extensions.Diagnostics;
 
 namespace ChildWorkerService
 {
@@ -29,18 +29,19 @@ namespace ChildWorkerService
 
             var collection = _database.GetCollection<Person>(nameof(Person));
 
-            var count = await collection.CountDocumentsAsync(p => true);
+            var count = await collection.CountDocumentsAsync(p => true, cancellationToken: context.CancellationToken);
 
             var next = rng.Next((int)count);
 
-            var currentActivity = context.Extensions.Get<ICurrentActivity>();
+            if (context.Extensions.TryGet(out Activity currentActivity))
+            {
+                currentActivity.AddTag("code.randomvalue", next);
+            }
 
-            currentActivity.Current?.AddTag("code.randomvalue", next);
-
-            var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync();
+            var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync(cancellationToken: context.CancellationToken);
 
             // add random jitter
-            await Task.Delay(rng.Next() % 1000);
+            await Task.Delay(rng.Next() % 1000, cancellationToken: context.CancellationToken);
 
             await context.Reply(new MakeItYellResponse
             {

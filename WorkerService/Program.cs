@@ -6,13 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using NServiceBus;
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Extensions.Diagnostics;
-using NServiceBus.Json;
-using NServiceBus.Logging;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -43,18 +37,19 @@ namespace WorkerService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseNServiceBus(hostBuilderContext =>
+                .UseNServiceBus(_ =>
                 {
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
-                    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+                    endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
 
-                    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-                    transport.ConnectionString("host=localhost");
-                    transport.UseConventionalRoutingTopology();
+                    var transport = new RabbitMQTransport(
+                        RoutingTopology.Conventional(QueueType.Classic),
+                        "host=localhost"
+                    );
+                    var transportSettings = endpointConfiguration.UseTransport(transport);
 
-                    var routing = transport.Routing();
-                    routing.RouteToEndpoint(typeof(MakeItYell).Assembly, "NsbActivities.ChildWorkerService");
+                    transportSettings.RouteToEndpoint(typeof(MakeItYell).Assembly, "NsbActivities.ChildWorkerService");
 
                     endpointConfiguration.UsePersistence<LearningPersistence>();
 
@@ -62,14 +57,7 @@ namespace WorkerService
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
-                    var settings = endpointConfiguration.GetSettings();
-
-                    settings.Set(new NServiceBus.Extensions.Diagnostics.InstrumentationOptions
-                    {
-                        CaptureMessageBody = true
-                    });
-
-                    endpointConfiguration.EnableFeature<DiagnosticsMetricsFeature>();
+                    endpointConfiguration.EnableOpenTelemetry();
 
                     // configure endpoint here
                     return endpointConfiguration;
@@ -83,7 +71,7 @@ namespace WorkerService
                         {
                             builder
                                 .SetResourceBuilder(resourceBuilder)
-                                .AddNServiceBusInstrumentation()
+                                .AddSource("NServiceBus.Core")
                                 .AddHttpClientInstrumentation()
                                 .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
                                 .AddJaegerExporter(c =>
@@ -97,14 +85,14 @@ namespace WorkerService
                         {
                             builder.SetResourceBuilder(resourceBuilder)
                                 .AddHttpClientInstrumentation()
-                                .AddNServiceBusInstrumentation()
+                                .AddMeter("NServiceBus.Core")
                                 .AddPrometheusExporter(options =>
                                 {
                                     options.ScrapeResponseCacheDurationMilliseconds = 0;
                                 });
                         });
 
-                        services.AddScoped<Func<HttpClient>>(s => () => new HttpClient
+                        services.AddScoped<Func<HttpClient>>(_ => () => new HttpClient
                         {
                             BaseAddress = new Uri("https://localhost:5001")
                         });

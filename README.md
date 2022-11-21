@@ -20,6 +20,7 @@ Values based on https://github.com/open-telemetry/opentelemetry-specification/pu
 | `messaging.message_id` | A value used by the messaging system as an identifier for the message, represented as a string. | No | Message.MessageId |
 | `messaging.conversation_id` | A value identifying the conversation to which the message belongs, represented as a string. Sometimes called "Correlation ID". | No | "NServiceBus.ConversationId" header |
 
+avg(rate(messaging_client_server_duration_ms_count[5m]))
 
 ## Prometheus
 

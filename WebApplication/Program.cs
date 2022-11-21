@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Extensions.Diagnostics;
-using NServiceBus.Json;
 using WorkerService.Messages;
 
 namespace WebApplication
@@ -72,28 +67,22 @@ namespace WebApplication
                 {
                     var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
-                    var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-                    transport.ConnectionString("host=localhost");
-                    transport.UseConventionalRoutingTopology();
+                    var transport = new RabbitMQTransport(
+                        RoutingTopology.Conventional(QueueType.Classic),
+                        "host=localhost"
+                    );
+                    var transportSettings = endpointConfiguration.UseTransport(transport);
 
-                    var routing = transport.Routing();
-                    routing.RouteToEndpoint(typeof(SaySomething).Assembly, "NsbActivities.WorkerService");
+                    transportSettings.RouteToEndpoint(typeof(SaySomething).Assembly, "NsbActivities.WorkerService");
 
                     endpointConfiguration.UsePersistence<LearningPersistence>();
-                    endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+                    endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
 
                     endpointConfiguration.EnableInstallers();
 
                     endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
 
-                    endpointConfiguration.EnableFeature<DiagnosticsMetricsFeature>();
-
-                    var settings = endpointConfiguration.GetSettings();
-
-                    settings.Set(new InstrumentationOptions
-                    {
-                        CaptureMessageBody = true
-                    });
+                    endpointConfiguration.EnableOpenTelemetry();
 
                     // configure endpoint here
                     return endpointConfiguration;
