@@ -9,99 +9,98 @@ using NServiceBus;
 using NServiceBus.Extensions.IntegrationTesting;
 using WorkerService.Messages;
 
-namespace IntegrationTests
+namespace IntegrationTests;
+
+public class WebAppFactory : WebApplicationFactory<WebApplication.Program>
 {
-    public class WebAppFactory : WebApplicationFactory<WebApplication.Program>
+    protected override IHostBuilder CreateHostBuilder()
     {
-        protected override IHostBuilder CreateHostBuilder()
-        {
-            return Host.CreateDefaultBuilder()
-                .UseNServiceBus(_ =>
+        return Host.CreateDefaultBuilder()
+            .UseNServiceBus(_ =>
+            {
+                var endpoint = new EndpointConfiguration(WebApplication.Program.EndpointName);
+
+                endpoint.AssemblyScanner().ExcludeAssemblies("ChildWorkerService.dll", "WorkerService.dll");
+
+                endpoint.ConfigureTestEndpoint(transport =>
                 {
-                    var endpoint = new EndpointConfiguration(WebApplication.Program.EndpointName);
-
-                    endpoint.AssemblyScanner().ExcludeAssemblies("ChildWorkerService.dll", "WorkerService.dll");
-
-                    endpoint.ConfigureTestEndpoint(transport =>
-                    {
-                        var routing = transport.Routing();
-                        routing.RouteToEndpoint(typeof(SaySomething).Assembly, WorkerService.Program.EndpointName);
-                    });
-
-                    endpoint.UsePersistence<LearningPersistence>();
-                    endpoint.UseSerialization<NewtonsoftJsonSerializer>();
-
-                    return endpoint;
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<WebApplication.Startup>();
+                    var routing = transport.Routing();
+                    routing.RouteToEndpoint(typeof(SaySomething).Assembly, WorkerService.Program.EndpointName);
                 });
-        }
+
+                endpoint.UsePersistence<LearningPersistence>();
+                endpoint.UseSerialization<NewtonsoftJsonSerializer>();
+
+                return endpoint;
+            })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<WebApplication.Startup>();
+            });
     }
+}
 
-    public class WorkerServiceFactory : WebApplicationFactory<WorkerService.Program>
+public class WorkerServiceFactory : WebApplicationFactory<WorkerService.Program>
+{
+    protected override IHostBuilder CreateHostBuilder()
     {
-        protected override IHostBuilder CreateHostBuilder()
-        {
-            return Host.CreateDefaultBuilder()
-                .UseNServiceBus(_ =>
+        return Host.CreateDefaultBuilder()
+            .UseNServiceBus(_ =>
+            {
+                var endpoint = new EndpointConfiguration(WorkerService.Program.EndpointName);
+
+                endpoint.AssemblyScanner().ExcludeAssemblies("WebApplication.dll", "ChildWorkerService.dll");
+
+                endpoint.ConfigureTestEndpoint(transport =>
                 {
-                    var endpoint = new EndpointConfiguration(WorkerService.Program.EndpointName);
+                    var routing = transport.Routing();
+                    routing.RouteToEndpoint(typeof(MakeItYell).Assembly, ChildWorkerService.Program.EndpointName);
+                });
 
-                    endpoint.AssemblyScanner().ExcludeAssemblies("WebApplication.dll", "ChildWorkerService.dll");
+                endpoint.UsePersistence<LearningPersistence>();
+                endpoint.UseSerialization<NewtonsoftJsonSerializer>();
 
-                    endpoint.ConfigureTestEndpoint(transport =>
-                    {
-                        var routing = transport.Routing();
-                        routing.RouteToEndpoint(typeof(MakeItYell).Assembly, ChildWorkerService.Program.EndpointName);
-                    });
-
-                    endpoint.UsePersistence<LearningPersistence>();
-                    endpoint.UseSerialization<NewtonsoftJsonSerializer>();
-
-                    return endpoint;
-                })
-                .ConfigureWebHost(b => b.Configure(_ => {}));
-        }
+                return endpoint;
+            })
+            .ConfigureWebHost(b => b.Configure(_ => {}));
     }
+}
 
-    public class ChildWorkerServiceFactory : WebApplicationFactory<ChildWorkerService.Program>
+public class ChildWorkerServiceFactory : WebApplicationFactory<ChildWorkerService.Program>
+{
+    protected override IHostBuilder CreateHostBuilder()
     {
-        protected override IHostBuilder CreateHostBuilder()
-        {
-            return Host.CreateDefaultBuilder()
-                .UseNServiceBus(_ =>
+        return Host.CreateDefaultBuilder()
+            .UseNServiceBus(_ =>
+            {
+                var endpoint = new EndpointConfiguration(ChildWorkerService.Program.EndpointName);
+
+                endpoint.ConfigureTestEndpoint();
+
+                endpoint.AssemblyScanner().ExcludeAssemblies("WebApplication.dll", "WorkerService.dll");
+
+                endpoint.UsePersistence<LearningPersistence>();
+                endpoint.UseSerialization<NewtonsoftJsonSerializer>();
+
+                return endpoint;
+            })
+            .ConfigureServices(services =>
+            {
+                var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
+
+                services.AddSingleton(runner);
+                var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
                 {
-                    var endpoint = new EndpointConfiguration(ChildWorkerService.Program.EndpointName);
-
-                    endpoint.ConfigureTestEndpoint();
-
-                    endpoint.AssemblyScanner().ExcludeAssemblies("WebApplication.dll", "WorkerService.dll");
-
-                    endpoint.UsePersistence<LearningPersistence>();
-                    endpoint.UseSerialization<NewtonsoftJsonSerializer>();
-
-                    return endpoint;
-                })
-                .ConfigureServices(services =>
-                {
-                    var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
-
-                    services.AddSingleton(runner);
-                    var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
-                    {
-                        DatabaseName = "dev"
-                    };
-                    var mongoUrl = urlBuilder.ToMongoUrl();
-                    var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
-                    var mongoClient = new MongoClient(mongoClientSettings);
-                    services.AddSingleton(mongoUrl);
-                    services.AddSingleton(mongoClient);
-                    services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
-                    services.AddHostedService<ChildWorkerService.Mongo2GoService>();
-                })
-                .ConfigureWebHost(b => b.Configure(_ => { }));
-        }
+                    DatabaseName = "dev"
+                };
+                var mongoUrl = urlBuilder.ToMongoUrl();
+                var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
+                var mongoClient = new MongoClient(mongoClientSettings);
+                services.AddSingleton(mongoUrl);
+                services.AddSingleton(mongoClient);
+                services.AddTransient(provider => provider.GetService<MongoClient>().GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
+                services.AddHostedService<ChildWorkerService.Mongo2GoService>();
+            })
+            .ConfigureWebHost(b => b.Configure(_ => { }));
     }
 }

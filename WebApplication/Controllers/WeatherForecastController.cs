@@ -4,29 +4,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
-namespace WebApplication.Controllers
+namespace WebApplication.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class WeatherForecastController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    private readonly WeatherContext _dbContext;
+
+    public WeatherForecastController(WeatherContext dbContext) => _dbContext = dbContext;
+
+    [HttpGet]
+    public Task<List<WeatherForecast>> Get() => _dbContext.Forecasts.ToListAsync();
+
+    [HttpGet("today")]
+    public async Task<WeatherForecast> GetToday()
     {
-        private readonly WeatherContext _dbContext;
+        var forecastCount = await _dbContext.Forecasts.CountAsync();
 
-        public WeatherForecastController(WeatherContext dbContext) => _dbContext = dbContext;
+        var rng = new Random();
 
-        [HttpGet]
-        public Task<List<WeatherForecast>> Get() => _dbContext.Forecasts.ToListAsync();
-
-        [HttpGet("today")]
-        public async Task<WeatherForecast> GetToday()
-        {
-            var forecastCount = await _dbContext.Forecasts.CountAsync();
-
-            var rng = new Random();
-
-            return await _dbContext.Forecasts.Skip(rng.Next(forecastCount)).FirstAsync();
-        }
+        return await _dbContext.Forecasts.Skip(rng.Next(forecastCount)).FirstAsync();
     }
 }

@@ -7,33 +7,32 @@ using NServiceBus;
 using WorkerService.Messages;
 using static System.Text.Json.JsonSerializer;
 
-namespace WorkerService
+namespace WorkerService;
+
+public class GetTemperatureHandler : IHandleMessages<GetTemperature>
 {
-    public class GetTemperatureHandler : IHandleMessages<GetTemperature>
+    private readonly ILogger<GetTemperatureHandler> _logger;
+    private readonly Func<HttpClient> _httpClientFactory;
+
+    public GetTemperatureHandler(ILogger<GetTemperatureHandler> logger, Func<HttpClient> httpClientFactory)
     {
-        private readonly ILogger<GetTemperatureHandler> _logger;
-        private readonly Func<HttpClient> _httpClientFactory;
+        _logger = logger;
+        _httpClientFactory = httpClientFactory;
+    }
 
-        public GetTemperatureHandler(ILogger<GetTemperatureHandler> logger, Func<HttpClient> httpClientFactory)
+    public async Task Handle(GetTemperature message, IMessageHandlerContext context)
+    {
+        var httpClient = _httpClientFactory();
+
+        var content = await httpClient.GetStringAsync("/weatherforecast/today");
+
+        dynamic json = Deserialize<ExpandoObject>(content);
+
+        var temp = (int)json.temperatureF.GetInt32();
+
+        await context.Reply(new GetTemperatureResponse
         {
-            _logger = logger;
-            _httpClientFactory = httpClientFactory;
-        }
-
-        public async Task Handle(GetTemperature message, IMessageHandlerContext context)
-        {
-            var httpClient = _httpClientFactory();
-
-            var content = await httpClient.GetStringAsync("/weatherforecast/today");
-
-            dynamic json = Deserialize<ExpandoObject>(content);
-
-            var temp = (int)json.temperatureF.GetInt32();
-
-            await context.Reply(new GetTemperatureResponse
-            {
-                Value = temp
-            });
-        }
+            Value = temp
+        });
     }
 }

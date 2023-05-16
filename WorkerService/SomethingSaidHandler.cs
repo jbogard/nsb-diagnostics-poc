@@ -7,29 +7,28 @@ using WebApplication.Messages;
 using static System.Text.Json.JsonSerializer;
 using WorkerService.Messages;
 
-namespace WorkerService
+namespace WorkerService;
+
+public class SomethingSaidHandler : IHandleMessages<SomethingSaid>
 {
-    public class SomethingSaidHandler : IHandleMessages<SomethingSaid>
+    private readonly Func<HttpClient> _httpClientFactory;
+
+    public SomethingSaidHandler(Func<HttpClient> httpClientFactory) 
+        => _httpClientFactory = httpClientFactory;
+
+    public async Task Handle(SomethingSaid message, IMessageHandlerContext context)
     {
-        private readonly Func<HttpClient> _httpClientFactory;
+        var httpClient = _httpClientFactory();
+        var content = await httpClient.GetStringAsync("/weatherforecast/today");
 
-        public SomethingSaidHandler(Func<HttpClient> httpClientFactory) 
-            => _httpClientFactory = httpClientFactory;
+        dynamic json = Deserialize<ExpandoObject>(content);
 
-        public async Task Handle(SomethingSaid message, IMessageHandlerContext context)
+        var temp = (int)json.temperatureF.GetInt32();
+
+        await context.Publish(new TemperatureRead
         {
-            var httpClient = _httpClientFactory();
-            var content = await httpClient.GetStringAsync("/weatherforecast/today");
-
-            dynamic json = Deserialize<ExpandoObject>(content);
-
-            var temp = (int)json.temperatureF.GetInt32();
-
-            await context.Publish(new TemperatureRead
-            {
-                Id = message.Id,
-                Value = temp
-            });
-        }
+            Id = message.Id,
+            Value = temp
+        });
     }
 }

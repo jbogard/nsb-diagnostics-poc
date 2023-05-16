@@ -1,10 +1,9 @@
 ﻿using NServiceBus;
 
-namespace ChildWorkerService.Messages
+namespace ChildWorkerService.Messages;
+
+public class MakeItYellResponse : IMessage
 {
-    public class MakeItYellResponse : IMessage
-    {
-        public string Value { get; set; }
-        public string FavoritePerson { get; set; }
-    }
+    public string Value { get; set; }
+    public string FavoritePerson { get; set; }
 }

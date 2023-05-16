@@ -13,26 +13,26 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using InstrumentationOptions = MongoDB.Driver.Core.Extensions.DiagnosticSources.InstrumentationOptions;
 
-namespace ChildWorkerService
+namespace ChildWorkerService;
+
+public class Program
 {
-    public class Program
+    public const string EndpointName = "NsbActivities.ChildWorkerService";
+
+    public static void Main(string[] args)
     {
-        public const string EndpointName = "NsbActivities.ChildWorkerService";
-
-        public static void Main(string[] args)
+        var listener = new ActivityListener
         {
-            var listener = new ActivityListener
+            ShouldListenTo = _ => true,
+            ActivityStopped = activity =>
             {
-                ShouldListenTo = _ => true,
-                ActivityStopped = activity =>
+                foreach (var (key, value) in activity.Baggage)
                 {
-                    foreach (var (key, value) in activity.Baggage)
-                    {
-                        activity.AddTag(key, value);
-                    }
+                    activity.AddTag(key, value);
                 }
-            };
-            ActivitySource.AddActivityListener(listener);
+            }
+        };
+        ActivitySource.AddActivityListener(listener);
 
 
 
@@ -41,82 +41,84 @@ namespace ChildWorkerService
 
 
 
-            CreateHostBuilder(args).Build().Run();
-        }
+        CreateHostBuilder(args).Build().Run();
+    }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseNServiceBus(_ =>
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .UseNServiceBus(_ =>
+            {
+                var endpointConfiguration = new EndpointConfiguration(EndpointName);
+
+                endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
+
+                var transport = new RabbitMQTransport(
+                    RoutingTopology.Conventional(QueueType.Classic),
+                    "host=localhost"
+                );
+                endpointConfiguration.UseTransport(transport);
+
+                endpointConfiguration.UsePersistence<LearningPersistence>();
+
+                endpointConfiguration.EnableInstallers();
+
+                endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
+
+                var recoverability = endpointConfiguration.Recoverability();
+                recoverability.Immediate(i => i.NumberOfRetries(1));
+                recoverability.Delayed(i => i.NumberOfRetries(0));
+
+
+                endpointConfiguration.EnableOpenTelemetry();
+
+                // configure endpoint here
+                return endpointConfiguration;
+            })
+            .ConfigureWebHostDefaults(webHostBuilder =>
+            {
+
+                webHostBuilder.ConfigureServices(services =>
                 {
-                    var endpointConfiguration = new EndpointConfiguration(EndpointName);
+                    var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
 
-                    endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
-
-                    var transport = new RabbitMQTransport(
-                        RoutingTopology.Conventional(QueueType.Classic),
-                        "host=localhost"
-                        );
-                    endpointConfiguration.UseTransport(transport);
-
-                    endpointConfiguration.UsePersistence<LearningPersistence>();
-
-                    endpointConfiguration.EnableInstallers();
-
-                    endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
-
-                    var recoverability = endpointConfiguration.Recoverability();
-                    recoverability.Immediate(i => i.NumberOfRetries(1));
-                    recoverability.Delayed(i => i.NumberOfRetries(0));
-
-
-                    endpointConfiguration.EnableOpenTelemetry();
-
-                    // configure endpoint here
-                    return endpointConfiguration;
-                })
-                .ConfigureWebHostDefaults(webHostBuilder =>
-                {
-
-                    webHostBuilder.ConfigureServices(services =>
+                    services.AddSingleton(runner);
+                    var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
                     {
-                        var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
-
-                        services.AddSingleton(runner);
-                        var urlBuilder = new MongoUrlBuilder(runner.ConnectionString)
-                        {
-                            DatabaseName = "dev"
-                        };
-                        var mongoUrl = urlBuilder.ToMongoUrl();
-                        var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
-                        mongoClientSettings.ClusterConfigurator = cb =>
-                            cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions
-                                {CaptureCommandText = true}));
-                        var mongoClient = new MongoClient(mongoClientSettings);
-                        services.AddSingleton(mongoUrl);
-                        services.AddSingleton(mongoClient);
-                        services.AddTransient(provider =>
-                            provider.GetService<MongoClient>()
-                                .GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
-                        services.AddHostedService<Mongo2GoService>();
-                        var resourceBuilder = ResourceBuilder.CreateDefault().AddService(EndpointName);
-                        services.AddOpenTelemetryTracing(builder =>
+                        DatabaseName = "dev"
+                    };
+                    var mongoUrl = urlBuilder.ToMongoUrl();
+                    var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
+                    mongoClientSettings.ClusterConfigurator = cb =>
+                        cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions
+                            {CaptureCommandText = true}));
+                    var mongoClient = new MongoClient(mongoClientSettings);
+                    services.AddSingleton(mongoUrl);
+                    services.AddSingleton(mongoClient);
+                    services.AddTransient(provider =>
+                        provider.GetService<MongoClient>()
+                            .GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
+                    services.AddHostedService<Mongo2GoService>();
+                    services.AddOpenTelemetry()
+                        .WithTracing(builder =>
                         {
                             builder
-                                .SetResourceBuilder(resourceBuilder)
-                                .AddMongoDBInstrumentation()
+                                .ConfigureResource(resource => resource.AddService(EndpointName))
+                                .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
                                 .AddSource("NServiceBus.Core")
-                                .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
+                                .AddZipkinExporter(o =>
+                                {
+                                    o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+                                })
                                 .AddJaegerExporter(c =>
                                 {
                                     c.AgentHost = "localhost";
                                     c.AgentPort = 6831;
                                 });
-                        });
-
-
-                        services.AddOpenTelemetryMetrics(builder =>
+                        })
+                        .WithMetrics(builder =>
                         {
-                            builder.SetResourceBuilder(resourceBuilder)
+                            builder
+                                .ConfigureResource(resource => resource.AddService(EndpointName))
                                 .AddMeter("NServiceBus.Core")
                                 .AddPrometheusExporter(options =>
                                 {
@@ -124,15 +126,14 @@ namespace ChildWorkerService
                                 });
                         });
 
-                    });
+                });
 
-                    webHostBuilder.Configure(app =>
-                    {
-                        app.UseOpenTelemetryPrometheusScrapingEndpoint();
-                    });
-                })
+                webHostBuilder.Configure(app =>
+                {
+                    app.UseOpenTelemetryPrometheusScrapingEndpoint();
+                });
+            })
 
 
-            ;
-    }
+    ;
 }

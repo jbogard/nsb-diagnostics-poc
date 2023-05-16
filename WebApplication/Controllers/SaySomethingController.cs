@@ -1,66 +1,55 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using WebApplication.Messages;
 using WorkerService.Messages;
 
-namespace WebApplication.Controllers
+namespace WebApplication.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class SaySomethingController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class SaySomethingController : ControllerBase
+    private readonly ILogger<SaySomethingController> _logger;
+    private readonly IMessageSession _messageSession;
+
+    public SaySomethingController(ILogger<SaySomethingController> logger, 
+        IMessageSession messageSession)
     {
-        private readonly ILogger<SaySomethingController> _logger;
-        private readonly IMessageSession _messageSession;
-
-        public SaySomethingController(ILogger<SaySomethingController> logger, 
-            IMessageSession messageSession)
-        {
-            _logger = logger;
-            _messageSession = messageSession;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<Guid>> Get(string message)
-        {
-            var command = new SaySomething
-            {
-                Message = message,
-                Id = Guid.NewGuid()
-            };
-
-
-            var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
-
-            activityFeature?.Activity.AddTag("card.id", command.Id);
-            activityFeature?.Activity.AddBaggage("card.id", command.Id.ToString());
-
-
-            await _messageSession.Send(command);
-
-            return Accepted(command.Id);
-        }
-
-        [HttpGet("else")]
-        public async Task<ActionResult<Guid>> Else(string message)
-        {
-            var @event = new SomethingSaid
-            {
-                Message = message,
-                Id = Guid.NewGuid()
-            };
-
-            _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
-
-            await _messageSession.Publish(@event);
-
-            return Accepted(@event.Id);
-        }
-
+        _logger = logger;
+        _messageSession = messageSession;
     }
+
+    [HttpGet]
+    public async Task<ActionResult<Guid>> Get(string message)
+    {
+        var command = new SaySomething
+        {
+            Message = message,
+            Id = Guid.NewGuid()
+        };
+
+        await _messageSession.Send(command);
+
+        return Accepted(command.Id);
+    }
+
+    [HttpGet("else")]
+    public async Task<ActionResult<Guid>> Else(string message)
+    {
+        var @event = new SomethingSaid
+        {
+            Message = message,
+            Id = Guid.NewGuid()
+        };
+
+        _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
+
+        await _messageSession.Publish(@event);
+
+        return Accepted(@event.Id);
+    }
+
 }

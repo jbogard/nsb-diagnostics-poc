@@ -3,20 +3,19 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using WorkerService.Messages;
 
-namespace WebApplication
+namespace WebApplication;
+
+public class SaySomethingResponseHandler : IHandleMessages<SaySomethingResponse>
 {
-    public class SaySomethingResponseHandler : IHandleMessages<SaySomethingResponse>
+    private readonly ILogger<SaySomethingResponseHandler> _logger;
+
+    public SaySomethingResponseHandler(ILogger<SaySomethingResponseHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(SaySomethingResponse message, IMessageHandlerContext context)
     {
-        private readonly ILogger<SaySomethingResponseHandler> _logger;
+        _logger.LogInformation("Received {message}", message.Message);
 
-        public SaySomethingResponseHandler(ILogger<SaySomethingResponseHandler> logger)
-            => _logger = logger;
-
-        public Task Handle(SaySomethingResponse message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation("Received {message}", message.Message);
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

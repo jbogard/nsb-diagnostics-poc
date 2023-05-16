@@ -1,9 +1,8 @@
 ﻿using NServiceBus;
 
-namespace WorkerService.Messages
+namespace WorkerService.Messages;
+
+public class SomethingSaidCompleted : IEvent
 {
-    public class SomethingSaidCompleted : IEvent
-    {
-        public string Message { get; set; }
-    }
+    public string Message { get; set; }
 }

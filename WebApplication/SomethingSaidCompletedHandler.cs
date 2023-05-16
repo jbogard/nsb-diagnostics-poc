@@ -3,20 +3,19 @@ using Microsoft.Extensions.Logging;
 using NServiceBus;
 using WorkerService.Messages;
 
-namespace WebApplication
+namespace WebApplication;
+
+public class SomethingSaidCompletedHandler : IHandleMessages<SomethingSaidCompleted>
 {
-    public class SomethingSaidCompletedHandler : IHandleMessages<SomethingSaidCompleted>
+    private readonly ILogger<SomethingSaidCompletedHandler> _logger;
+
+    public SomethingSaidCompletedHandler(ILogger<SomethingSaidCompletedHandler> logger)
+        => _logger = logger;
+
+    public Task Handle(SomethingSaidCompleted message, IMessageHandlerContext context)
     {
-        private readonly ILogger<SomethingSaidCompletedHandler> _logger;
+        _logger.LogInformation("Received {message}", message.Message);
 
-        public SomethingSaidCompletedHandler(ILogger<SomethingSaidCompletedHandler> logger)
-            => _logger = logger;
-
-        public Task Handle(SomethingSaidCompleted message, IMessageHandlerContext context)
-        {
-            _logger.LogInformation("Received {message}", message.Message);
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

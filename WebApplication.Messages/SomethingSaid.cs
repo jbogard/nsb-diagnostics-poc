@@ -1,11 +1,10 @@
 ﻿using System;
 using NServiceBus;
 
-namespace WebApplication.Messages
+namespace WebApplication.Messages;
+
+public class SomethingSaid : IEvent
 {
-    public class SomethingSaid : IEvent
-    {
-        public string Message { get; set; }
-        public Guid Id { get; set; }
-    }
+    public string Message { get; set; }
+    public Guid Id { get; set; }
 }

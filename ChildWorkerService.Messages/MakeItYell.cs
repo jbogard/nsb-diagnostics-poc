@@ -1,10 +1,8 @@
-﻿using System;
-using NServiceBus;
+﻿using NServiceBus;
 
-namespace ChildWorkerService.Messages
+namespace ChildWorkerService.Messages;
+
+public class MakeItYell : ICommand
 {
-    public class MakeItYell : ICommand
-    {
-        public string Value { get; set; }
-    }
+    public string Value { get; set; }
 }

@@ -7,47 +7,46 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using NServiceBus;
 
-namespace ChildWorkerService
+namespace ChildWorkerService;
+
+public class MakeItYellHandler : IHandleMessages<MakeItYell>
 {
-    public class MakeItYellHandler : IHandleMessages<MakeItYell>
+    private readonly ILogger<MakeItYellHandler> _logger;
+    private readonly IMongoDatabase _database;
+    private static readonly Random rng = new(Guid.NewGuid().GetHashCode());
+
+    private static readonly Random _coinFlip = new Random();
+
+    public MakeItYellHandler(ILogger<MakeItYellHandler> logger, IMongoDatabase database)
     {
-        private readonly ILogger<MakeItYellHandler> _logger;
-        private readonly IMongoDatabase _database;
-        private static readonly Random rng = new(Guid.NewGuid().GetHashCode());
+        _logger = logger;
+        _database = database;
+    }
 
-        private static readonly Random _coinFlip = new Random();
+    public async Task Handle(MakeItYell message, IMessageHandlerContext context)
+    {
+        _logger.LogInformation("Yelling out {message}", message.Value);
 
-        public MakeItYellHandler(ILogger<MakeItYellHandler> logger, IMongoDatabase database)
+        var collection = _database.GetCollection<Person>(nameof(Person));
+
+        var count = await collection.CountDocumentsAsync(p => true, cancellationToken: context.CancellationToken);
+
+        var next = rng.Next((int)count);
+
+        if (context.Extensions.TryGet(out Activity currentActivity))
         {
-            _logger = logger;
-            _database = database;
+            currentActivity.AddTag("code.randomvalue", next);
         }
 
-        public async Task Handle(MakeItYell message, IMessageHandlerContext context)
+        var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync(cancellationToken: context.CancellationToken);
+
+        // add random jitter
+        await Task.Delay(rng.Next() % 1000, cancellationToken: context.CancellationToken);
+
+        await context.Reply(new MakeItYellResponse
         {
-            _logger.LogInformation("Yelling out {message}", message.Value);
-
-            var collection = _database.GetCollection<Person>(nameof(Person));
-
-            var count = await collection.CountDocumentsAsync(p => true, cancellationToken: context.CancellationToken);
-
-            var next = rng.Next((int)count);
-
-            if (context.Extensions.TryGet(out Activity currentActivity))
-            {
-                currentActivity.AddTag("code.randomvalue", next);
-            }
-
-            var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync(cancellationToken: context.CancellationToken);
-
-            // add random jitter
-            await Task.Delay(rng.Next() % 1000, cancellationToken: context.CancellationToken);
-
-            await context.Reply(new MakeItYellResponse
-            {
-                Value = message.Value.ToUpperInvariant(),
-                FavoritePerson = $"{favoritePerson.FirstName} {favoritePerson.LastName}"
-            });
-        }
+            Value = message.Value.ToUpperInvariant(),
+            FavoritePerson = $"{favoritePerson.FirstName} {favoritePerson.LastName}"
+        });
     }
 }
