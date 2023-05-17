@@ -33,16 +33,7 @@ public class Program
                 }
             }
         };
-        ActivitySource.AddActivityListener(listener);
-
-
-
-
-
-
-
-
-        CreateHostBuilder(args).Build().Run();
+        ActivitySource.AddActivityListener(listener); CreateHostBuilder(args).Build().Run();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -63,15 +54,11 @@ public class Program
 
                 endpointConfiguration.EnableInstallers();
 
-                endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
-
                 var recoverability = endpointConfiguration.Recoverability();
                 recoverability.Immediate(i => i.NumberOfRetries(1));
                 recoverability.Delayed(i => i.NumberOfRetries(0));
 
-
                 endpointConfiguration.EnableOpenTelemetry();
-
                 // configure endpoint here
                 return endpointConfiguration;
             })
@@ -89,16 +76,22 @@ public class Program
                     };
                     var mongoUrl = urlBuilder.ToMongoUrl();
                     var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
+
                     mongoClientSettings.ClusterConfigurator = cb =>
-                        cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions
-                        { CaptureCommandText = true }));
+                        cb.Subscribe(new DiagnosticsActivityEventSubscriber(
+                            new InstrumentationOptions
+                            {
+                                CaptureCommandText = true
+                            }));
+
                     var mongoClient = new MongoClient(mongoClientSettings);
                     services.AddSingleton(mongoUrl);
                     services.AddSingleton(mongoClient);
+
+
                     services.AddTransient(provider =>
                         provider.GetService<MongoClient>()
                             .GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
-                    services.AddHostedService<Mongo2GoService>();
 
                     var honeycombOptions = context.Configuration.GetHoneycombOptions();
 
@@ -106,9 +99,9 @@ public class Program
                         .WithTracing(builder =>
                         {
                             builder
-                                .ConfigureResource(resource => resource.AddService(EndpointName))
-                                .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
+                                .ConfigureResource(resource => resource.AddService(Program.EndpointName))
                                 .AddSource("NServiceBus.Core")
+                                .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
                                 .AddHoneycomb(honeycombOptions)
                                 .AddZipkinExporter(o =>
                                 {
@@ -123,14 +116,15 @@ public class Program
                         .WithMetrics(builder =>
                         {
                             builder
-                                .ConfigureResource(resource => resource.AddService(EndpointName))
+                                .ConfigureResource(resource => resource.AddService(Program.EndpointName))
                                 .AddMeter("NServiceBus.Core")
                                 .AddPrometheusExporter(options =>
                                 {
                                     options.ScrapeResponseCacheDurationMilliseconds = 0;
                                 });
-                        });
-
+                        })
+                        ;
+                    services.AddHostedService<Mongo2GoService>();
                 });
 
                 webHostBuilder.Configure(app =>

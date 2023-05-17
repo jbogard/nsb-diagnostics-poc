@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,10 @@ public class SaySomethingController : ControllerBase
             Id = Guid.NewGuid()
         };
 
+        var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
+
+        activityFeature?.Activity.AddBaggage("operation.id", command.Id.ToString());
+
         await _messageSession.Send(command);
 
         return Accepted(command.Id);
@@ -47,6 +52,11 @@ public class SaySomethingController : ControllerBase
         };
 
         _logger.LogInformation("Publishing message {message} with {id}", @event.Message, @event.Id);
+
+
+        var activityFeature = HttpContext.Features.Get<IHttpActivityFeature>();
+
+        activityFeature?.Activity.AddBaggage("operation.id", @event.Id.ToString());
 
         await _messageSession.Publish(@event);
 

@@ -16,28 +16,6 @@ public class Program
 
     public static void Main(string[] args)
     {
-        var listener = new ActivityListener
-        {
-            ShouldListenTo = _ => true,
-            ActivityStopped = activity =>
-            {
-                foreach (var (key, value) in activity.Baggage)
-                {
-                    activity.AddTag(key, value);
-                }
-            }
-        };
-        ActivitySource.AddActivityListener(listener);
-
-
-
-
-
-
-
-
-
-
         var host = CreateHostBuilder(args).Build();
 
         SeedDb(host);
@@ -64,13 +42,6 @@ public class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-            .ConfigureLogging(builder =>
-            {
-                builder.AddOpenTelemetry(options =>
-                {
-                    options.AddConsoleExporter();
-                });
-            })
             .UseNServiceBus(_ =>
             {
                 var endpointConfiguration = new EndpointConfiguration(EndpointName);
@@ -88,10 +59,7 @@ public class Program
 
                 endpointConfiguration.EnableInstallers();
 
-                endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
-
                 endpointConfiguration.EnableOpenTelemetry();
-
                 // configure endpoint here
                 return endpointConfiguration;
             })

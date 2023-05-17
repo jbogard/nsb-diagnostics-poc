@@ -37,7 +37,7 @@ public class MakeItYellHandler : IHandleMessages<MakeItYell>
         {
             currentActivity.AddTag("code.randomvalue", next);
         }
-
+        
         var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync(cancellationToken: context.CancellationToken);
 
         // add random jitter

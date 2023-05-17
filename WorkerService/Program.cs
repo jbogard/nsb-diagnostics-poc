@@ -32,7 +32,6 @@ public class Program
             }
         };
         ActivitySource.AddActivityListener(listener);
-
         CreateHostBuilder(args).Build().Run();
     }
 
@@ -56,10 +55,7 @@ public class Program
 
                 endpointConfiguration.EnableInstallers();
 
-                endpointConfiguration.AuditProcessedMessagesTo("NsbActivities.Audit");
-
                 endpointConfiguration.EnableOpenTelemetry();
-
                 // configure endpoint here
                 return endpointConfiguration;
             })
@@ -67,13 +63,18 @@ public class Program
             {
                 webHostBuilder.ConfigureServices((context, services) =>
                 {
+                    services.AddScoped<Func<HttpClient>>(_ => () => new HttpClient
+                    {
+                        BaseAddress = new Uri("https://localhost:5001")
+                    });
+
                     var honeycombOptions = context.Configuration.GetHoneycombOptions();
 
                     services.AddOpenTelemetry()
                         .WithTracing(builder =>
                         {
                             builder
-                                .ConfigureResource(resource => resource.AddService(EndpointName))
+                                .ConfigureResource(resource => resource.AddService(Program.EndpointName))
                                 .AddSource("NServiceBus.Core")
                                 .AddHttpClientInstrumentation()
                                 .AddHoneycomb(honeycombOptions)
@@ -90,21 +91,15 @@ public class Program
                         .WithMetrics(builder =>
                         {
                             builder
-                                .ConfigureResource(resource => resource.AddService(EndpointName))
-                                .AddHttpClientInstrumentation()
+                                .ConfigureResource(resource => resource.AddService(Program.EndpointName))
                                 .AddMeter("NServiceBus.Core")
                                 .AddPrometheusExporter(options =>
                                 {
                                     options.ScrapeResponseCacheDurationMilliseconds = 0;
                                 });
-                        });
-
-                    services.AddScoped<Func<HttpClient>>(_ => () => new HttpClient
-                    {
-                        BaseAddress = new Uri("https://localhost:5001")
-                    });
+                        })
+                        ;
                 });
-
                 webHostBuilder.Configure(app =>
                 {
                     app.UseOpenTelemetryPrometheusScrapingEndpoint();

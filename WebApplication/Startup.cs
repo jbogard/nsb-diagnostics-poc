@@ -1,4 +1,5 @@
 using System;
+using Honeycomb.OpenTelemetry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ public class Startup
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
         });
+
         var honeycombOptions = Configuration.GetHoneycombOptions();
 
         services.AddOpenTelemetry()
@@ -38,10 +40,16 @@ public class Startup
                 builder
                     .ConfigureResource(resource => resource.AddService(Program.EndpointName))
                     .AddAspNetCoreInstrumentation()
-                    .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
                     .AddSource("NServiceBus.Core")
+                    .AddSqlClientInstrumentation(options =>
+                    {
+                        options.SetDbStatementForText = true;
+                    })
                     .AddHoneycomb(honeycombOptions)
-                    .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
+                    .AddZipkinExporter(o =>
+                    {
+                        o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+                    })
                     .AddJaegerExporter(c =>
                     {
                         c.AgentHost = "localhost";
@@ -58,9 +66,8 @@ public class Startup
                     {
                         options.ScrapeResponseCacheDurationMilliseconds = 0;
                     });
-            });
-
-        //services.AddHostedService<LoadGenerator>();
+            })
+            ;
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
