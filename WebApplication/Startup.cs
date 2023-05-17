@@ -30,6 +30,7 @@ public class Startup
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
         });
+        var honeycombOptions = Configuration.GetHoneycombOptions();
 
         services.AddOpenTelemetry()
             .WithTracing(builder =>
@@ -39,6 +40,7 @@ public class Startup
                     .AddAspNetCoreInstrumentation()
                     .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
                     .AddSource("NServiceBus.Core")
+                    .AddHoneycomb(honeycombOptions)
                     .AddZipkinExporter(o => { o.Endpoint = new Uri("http://localhost:9411/api/v2/spans"); })
                     .AddJaegerExporter(c =>
                     {

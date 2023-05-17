@@ -4,6 +4,7 @@ using System.Net.Http;
 using ChildWorkerService.Messages;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NServiceBus;
@@ -64,8 +65,10 @@ public class Program
             })
             .ConfigureWebHostDefaults(webHostBuilder =>
             {
-                webHostBuilder.ConfigureServices(services =>
+                webHostBuilder.ConfigureServices((context, services) =>
                 {
+                    var honeycombOptions = context.Configuration.GetHoneycombOptions();
+
                     services.AddOpenTelemetry()
                         .WithTracing(builder =>
                         {
@@ -73,6 +76,7 @@ public class Program
                                 .ConfigureResource(resource => resource.AddService(EndpointName))
                                 .AddSource("NServiceBus.Core")
                                 .AddHttpClientInstrumentation()
+                                .AddHoneycomb(honeycombOptions)
                                 .AddZipkinExporter(o =>
                                 {
                                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");

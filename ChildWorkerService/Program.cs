@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Mongo2Go;
@@ -77,7 +78,7 @@ public class Program
             .ConfigureWebHostDefaults(webHostBuilder =>
             {
 
-                webHostBuilder.ConfigureServices(services =>
+                webHostBuilder.ConfigureServices((context, services) =>
                 {
                     var runner = MongoDbRunner.Start(singleNodeReplSet: true, singleNodeReplSetWaitTimeout: 20);
 
@@ -90,7 +91,7 @@ public class Program
                     var mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);
                     mongoClientSettings.ClusterConfigurator = cb =>
                         cb.Subscribe(new DiagnosticsActivityEventSubscriber(new InstrumentationOptions
-                            {CaptureCommandText = true}));
+                        { CaptureCommandText = true }));
                     var mongoClient = new MongoClient(mongoClientSettings);
                     services.AddSingleton(mongoUrl);
                     services.AddSingleton(mongoClient);
@@ -98,6 +99,9 @@ public class Program
                         provider.GetService<MongoClient>()
                             .GetDatabase(provider.GetService<MongoUrl>().DatabaseName));
                     services.AddHostedService<Mongo2GoService>();
+
+                    var honeycombOptions = context.Configuration.GetHoneycombOptions();
+
                     services.AddOpenTelemetry()
                         .WithTracing(builder =>
                         {
@@ -105,6 +109,7 @@ public class Program
                                 .ConfigureResource(resource => resource.AddService(EndpointName))
                                 .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
                                 .AddSource("NServiceBus.Core")
+                                .AddHoneycomb(honeycombOptions)
                                 .AddZipkinExporter(o =>
                                 {
                                     o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
