@@ -5,10 +5,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Mongo2Go;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 using NServiceBus;
+using ObservabilityExtensions;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -22,22 +25,22 @@ public class Program
 
     public static void Main(string[] args)
     {
-        var listener = new ActivityListener
-        {
-            ShouldListenTo = _ => true,
-            ActivityStopped = activity =>
-            {
-                foreach (var (key, value) in activity.Baggage)
-                {
-                    activity.AddTag(key, value);
-                }
-            }
-        };
-        ActivitySource.AddActivityListener(listener); CreateHostBuilder(args).Build().Run();
+        CreateHostBuilder(args).Build().Run();
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
+            .ConfigureLogging(logging =>
+            {
+                logging.AddOpenTelemetry(options =>
+                {
+                    options.IncludeFormattedMessage = true;
+                    options.IncludeScopes = true;
+                    options.ParseStateValues = true;
+                    options.AddConsoleExporter();
+                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName));
+                });
+            })
             .UseNServiceBus(_ =>
             {
                 var endpointConfiguration = new EndpointConfiguration(EndpointName);
@@ -102,6 +105,7 @@ public class Program
                                 .ConfigureResource(resource => resource.AddService(Program.EndpointName))
                                 .AddSource("NServiceBus.Core")
                                 .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
+                                .AddProcessor(new CopyBaggageToTagsProcessor())
                                 .AddHoneycomb(honeycombOptions)
                                 .AddZipkinExporter(o =>
                                 {

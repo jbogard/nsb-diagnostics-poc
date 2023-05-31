@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChildWorkerService.Messages\ChildWorkerService.Messages.csproj" />
+    <ProjectReference Include="..\ObservabilityExtensions\ObservabilityExtensions.csproj" />
     <ProjectReference Include="..\WebApplication.Messages\WebApplication.Messages.csproj" />
     <ProjectReference Include="..\WorkerService.Messages\WorkerService.Messages.csproj" />
   </ItemGroup>

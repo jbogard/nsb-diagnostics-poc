@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
 using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 using WorkerService.Messages;
 
 namespace WebApplication;
@@ -42,6 +43,17 @@ public class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
+            .ConfigureLogging(logging =>
+            {
+                logging.AddOpenTelemetry(options =>
+                {
+                    options.IncludeFormattedMessage = true;
+                    options.IncludeScopes = true;
+                    options.ParseStateValues = true;
+                    options.AddConsoleExporter();
+                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName));
+                });
+            })
             .UseNServiceBus(_ =>
             {
                 var endpointConfiguration = new EndpointConfiguration(EndpointName);

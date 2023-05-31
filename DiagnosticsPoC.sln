@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication.Messages", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{C25C5155-5239-40DE-A92E-2F7D435DA0B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObservabilityExtensions", "ObservabilityExtensions\ObservabilityExtensions.csproj", "{3C727724-8723-4CB0-8ED2-B098EE7331D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C25C5155-5239-40DE-A92E-2F7D435DA0B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C727724-8723-4CB0-8ED2-B098EE7331D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C727724-8723-4CB0-8ED2-B098EE7331D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C727724-8723-4CB0-8ED2-B098EE7331D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C727724-8723-4CB0-8ED2-B098EE7331D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

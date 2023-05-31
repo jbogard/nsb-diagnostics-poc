@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using ObservabilityExtensions;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -45,6 +46,7 @@ public class Startup
                     {
                         options.SetDbStatementForText = true;
                     })
+                    .AddProcessor(new CopyBaggageToTagsProcessor())
                     .AddHoneycomb(honeycombOptions)
                     .AddZipkinExporter(o =>
                     {
