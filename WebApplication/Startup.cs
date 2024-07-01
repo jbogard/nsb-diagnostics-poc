@@ -1,105 +1,105 @@
-using System;
-using Honeycomb.OpenTelemetry;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using ObservabilityExtensions;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
+//using System;
+//using Honeycomb.OpenTelemetry;
+//using Microsoft.AspNetCore.Builder;
+//using Microsoft.AspNetCore.Hosting;
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.DependencyInjection;
+//using Microsoft.Extensions.Hosting;
+//using Microsoft.OpenApi.Models;
+//using ObservabilityExtensions;
+//using OpenTelemetry.Metrics;
+//using OpenTelemetry.Resources;
+//using OpenTelemetry.Trace;
 
-namespace WebApplication;
+//namespace WebApplication;
 
-public class Startup
-{
-    public Startup(IConfiguration configuration) => Configuration = configuration;
+//public class Startup
+//{
+//    public Startup(IConfiguration configuration) => Configuration = configuration;
 
-    public IConfiguration Configuration { get; }
+//    public IConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddControllers();
+//    // This method gets called by the runtime. Use this method to add services to the container.
+//    public void ConfigureServices(IServiceCollection services)
+//    {
+//        services.AddControllers();
 
-        services.AddDbContext<WeatherContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+//        services.AddDbContext<WeatherContext>(options =>
+//            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
-        });
+//        services.AddSwaggerGen(c =>
+//        {
+//            c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApplication", Version = "v1" });
+//        });
 
-        var honeycombOptions = Configuration.GetHoneycombOptions();
+//        var honeycombOptions = Configuration.GetHoneycombOptions();
 
-        services.AddOpenTelemetry()
-            .WithTracing(builder =>
-            {
-                builder
-                    .ConfigureResource(resource => resource.AddService(Program.EndpointName))
-                    .AddAspNetCoreInstrumentation()
-                    .AddSource("NServiceBus.Core")
-                    .AddSqlClientInstrumentation(options =>
-                    {
-                        options.SetDbStatementForText = true;
-                    })
-                    .AddProcessor(new CopyBaggageToTagsProcessor())
-                    .AddHoneycomb(honeycombOptions)
-                    .AddZipkinExporter(o =>
-                    {
-                        o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
-                    })
-                    .AddJaegerExporter(c =>
-                    {
-                        c.AgentHost = "localhost";
-                        c.AgentPort = 6831;
-                    });
-            })
-            .WithMetrics(builder =>
-            {
-                builder
-                    .ConfigureResource(resource => resource.AddService(Program.EndpointName))
-                    .AddAspNetCoreInstrumentation()
-                    .AddMeter("NServiceBus.Core")
-                    .AddPrometheusExporter(options =>
-                    {
-                        options.ScrapeResponseCacheDurationMilliseconds = 0;
-                    });
-            })
-            ;
-    }
+//        services.AddOpenTelemetry()
+//            .WithTracing(builder =>
+//            {
+//                builder
+//                    .ConfigureResource(resource => resource.AddService(Program.EndpointName))
+//                    .AddAspNetCoreInstrumentation()
+//                    .AddSource("NServiceBus.Core")
+//                    .AddSqlClientInstrumentation(options =>
+//                    {
+//                        options.SetDbStatementForText = true;
+//                    })
+//                    .AddProcessor(new CopyBaggageToTagsProcessor())
+//                    .AddHoneycomb(honeycombOptions)
+//                    .AddZipkinExporter(o =>
+//                    {
+//                        o.Endpoint = new Uri("http://localhost:9411/api/v2/spans");
+//                    })
+//                    .AddJaegerExporter(c =>
+//                    {
+//                        c.AgentHost = "localhost";
+//                        c.AgentPort = 6831;
+//                    });
+//            })
+//            .WithMetrics(builder =>
+//            {
+//                builder
+//                    .ConfigureResource(resource => resource.AddService(Program.EndpointName))
+//                    .AddAspNetCoreInstrumentation()
+//                    .AddMeter("NServiceBus.Core")
+//                    .AddPrometheusExporter(options =>
+//                    {
+//                        options.ScrapeResponseCacheDurationMilliseconds = 0;
+//                    });
+//            })
+//            ;
+//    }
 
-    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
+//    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+//    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+//    {
+//        if (env.IsDevelopment())
+//        {
+//            app.UseDeveloperExceptionPage();
+//        }
 
-        app.UseSwagger();
+//        app.UseSwagger();
 
-        // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
-        // specifying the Swagger JSON endpoint.
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication API V1");
-        });
+//        // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+//        // specifying the Swagger JSON endpoint.
+//        app.UseSwaggerUI(c =>
+//        {
+//            c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApplication API V1");
+//        });
 
-        app.UseOpenTelemetryPrometheusScrapingEndpoint();
+//        app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
-        app.UseHttpsRedirection();
+//        app.UseHttpsRedirection();
 
-        app.UseRouting();
+//        app.UseRouting();
 
-        app.UseAuthorization();
+//        app.UseAuthorization();
 
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
-    }
-}
+//        app.UseEndpoints(endpoints =>
+//        {
+//            endpoints.MapControllers();
+//        });
+//    }
+//}

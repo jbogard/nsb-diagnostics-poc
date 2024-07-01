@@ -12,14 +12,14 @@ namespace ChildWorkerService;
 public class YellItHandler : IHandleMessages<SomethingSaid>
 {
     private readonly ILogger<YellItHandler> _logger;
-    private readonly IMongoDatabase _database;
+    private readonly IMongoClient _client;
 
     private static readonly Random _coinFlip = new Random();
 
-    public YellItHandler(ILogger<YellItHandler> logger, IMongoDatabase database)
+    public YellItHandler(ILogger<YellItHandler> logger, IMongoClient client)
     {
         _logger = logger;
-        _database = database;
+        _client = client;
     }
 
     public async Task Handle(SomethingSaid message, IMessageHandlerContext context)
@@ -31,12 +31,13 @@ public class YellItHandler : IHandleMessages<SomethingSaid>
         //    throw new Exception("Something went wrong!");
         //}
 
-        var collection = _database.GetCollection<Person>(nameof(Person));
+        var database = _client.GetDatabase("dev");
+        var collection = database.GetCollection<Person>(nameof(Person));
 
-        var count = await collection.CountDocumentsAsync(p => true);
+        var count = await collection.CountDocumentsAsync(p => true, cancellationToken: context.CancellationToken);
         var rng = new Random();
 
-        var favoritePerson = await collection.AsQueryable().Skip(rng.Next((int)count)).FirstAsync();
+        var favoritePerson = await collection.AsQueryable().Skip(rng.Next((int)count)).FirstAsync(context.CancellationToken);
 
         await context.Publish(new SomethingYelled
         {

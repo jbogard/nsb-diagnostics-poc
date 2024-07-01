@@ -1,28 +1,26 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Mongo2Go;
 using MongoDB.Driver;
 
 namespace ChildWorkerService;
 
 public class Mongo2GoService : IHostedService
 {
-    private MongoDbRunner _runner;
-    private readonly IMongoDatabase _database;
+    private readonly IMongoClient _client;
 
-    public Mongo2GoService(MongoDbRunner runner, IMongoDatabase database)
+    public Mongo2GoService(IMongoClient client)
     {
-        _runner = runner;
-        _database = database;
+        _client = client;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var collection = _database.GetCollection<Person>(nameof(Person));
+        var database = _client.GetDatabase("dev");
+        var collection = database.GetCollection<Person>(nameof(Person));
 
-        return collection.InsertManyAsync(new[]
-        {
+        return collection.InsertManyAsync(
+        [
             new Person
             {
                 FirstName = "Homer",
@@ -48,13 +46,11 @@ public class Mongo2GoService : IHostedService
                 FirstName = "Maggie",
                 LastName = "Simpson"
             }, 
-        }, cancellationToken: cancellationToken);
+        ], cancellationToken: cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        _runner.Dispose();
-        _runner = null;
         return Task.CompletedTask;
     }
 }
