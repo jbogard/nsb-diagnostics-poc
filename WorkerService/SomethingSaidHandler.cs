@@ -18,7 +18,7 @@ public class SomethingSaidHandler : IHandleMessages<SomethingSaid>
 
     public async Task Handle(SomethingSaid message, IMessageHandlerContext context)
     {
-        var httpClient = _httpClientFactory.CreateClient("WebApplication)");
+        var httpClient = _httpClientFactory.CreateClient("web");
         var content = await httpClient.GetStringAsync("/weatherforecast/today", context.CancellationToken);
 
         dynamic json = Deserialize<ExpandoObject>(content);

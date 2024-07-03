@@ -17,7 +17,7 @@ public class GetTemperatureHandler : IHandleMessages<GetTemperature>
 
     public async Task Handle(GetTemperature message, IMessageHandlerContext context)
     {
-        var httpClient = _httpClientFactory.CreateClient("WebApplication");
+        var httpClient = _httpClientFactory.CreateClient("web");
 
         var content = await httpClient.GetStringAsync("/weatherforecast/today", context.CancellationToken);
 

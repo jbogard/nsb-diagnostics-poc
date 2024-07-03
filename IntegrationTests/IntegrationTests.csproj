@@ -13,7 +13,7 @@
     <PackageReference Include="xunit" Version="2.8.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1" PrivateAssets="all" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" PrivateAssets="All" />
-    <PackageReference Include="NServiceBus" Version="9.0.1" />
+    <PackageReference Include="NServiceBus" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.6" />
     <PackageReference Include="XunitContext" Version="3.3.2" />
   </ItemGroup>

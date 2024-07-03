@@ -38,7 +38,7 @@ endpointConfiguration.EnableOpenTelemetry();
 
 builder.UseNServiceBus(endpointConfiguration);
 
-builder.Services.AddHttpClient("WebApplication", client => client.BaseAddress = new Uri("https://webapplication"));
+builder.Services.AddHttpClient("web", client => client.BaseAddress = new Uri("https://web"));
 
 var host = builder.Build();
 

@@ -58,8 +58,12 @@ namespace Microsoft.Extensions.Hosting
                     tracing.AddAspNetCoreInstrumentation()
                            .AddGrpcClientInstrumentation()
                            .AddHttpClientInstrumentation()
-                           .AddEntityFrameworkCoreInstrumentation()
-                           //.AddSqlClientInstrumentation()
+                           .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
+                           // .AddSqlClientInstrumentation(options =>
+                           // {
+                           //     options.SetDbStatementForText = true;
+                           //     options.SetDbStatementForStoredProcedure = true;
+                           // })
                            .AddSource("NServiceBus.Core")
                            .AddSource("Aspire.RabbitMQ.Client")
                            .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
@@ -80,6 +84,8 @@ namespace Microsoft.Extensions.Hosting
             {
                 builder.Services.AddOpenTelemetry().UseOtlpExporter();
             }
+
+            builder.Services.AddOpenTelemetry().WithTracing(tracing => tracing.AddZipkinExporter());
             //if (useOtlpExporter)
             //{
             //    builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -16,8 +17,6 @@ var transport = new RabbitMQTransport(
 );
 var transportSettings = endpointConfiguration.UseTransport(transport);
 
-Thread.Sleep(10000);
-
 transportSettings.RouteToEndpoint(typeof(SaySomething).Assembly, "NsbActivities.WorkerService");
 
 endpointConfiguration.UsePersistence<LearningPersistence>();
@@ -35,7 +34,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.AddSqlServerDbContext<WeatherContext>("sqldata");
+//builder.AddSqlServerDbContext<WeatherContext>("sqldata");
+builder.Services.AddDbContext<WeatherContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("sqldata")));
 
 builder.Services.AddSwaggerGen();
 
