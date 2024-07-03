@@ -20,7 +20,7 @@ public class SaySomethingSaga : Saga<SaySomethingSagaData>,
 {
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SaySomethingSagaData> mapper)
     {
-        mapper.ConfigureMapping<SaySomething>(m => m.Id).ToSaga(s => s.OriginatorId);
+        mapper.MapSaga(s => s.OriginatorId).ToMessage<SaySomething>(m => m.Id);
     }
 
     public Task Handle(SaySomething message, IMessageHandlerContext context)

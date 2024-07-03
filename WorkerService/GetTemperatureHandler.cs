@@ -1,9 +1,4 @@
-﻿using System;
-using System.Dynamic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
+﻿using System.Dynamic;
 using WorkerService.Messages;
 using static System.Text.Json.JsonSerializer;
 
@@ -12,9 +7,9 @@ namespace WorkerService;
 public class GetTemperatureHandler : IHandleMessages<GetTemperature>
 {
     private readonly ILogger<GetTemperatureHandler> _logger;
-    private readonly Func<HttpClient> _httpClientFactory;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public GetTemperatureHandler(ILogger<GetTemperatureHandler> logger, Func<HttpClient> httpClientFactory)
+    public GetTemperatureHandler(ILogger<GetTemperatureHandler> logger, IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _httpClientFactory = httpClientFactory;
@@ -22,9 +17,9 @@ public class GetTemperatureHandler : IHandleMessages<GetTemperature>
 
     public async Task Handle(GetTemperature message, IMessageHandlerContext context)
     {
-        var httpClient = _httpClientFactory();
+        var httpClient = _httpClientFactory.CreateClient("web");
 
-        var content = await httpClient.GetStringAsync("/weatherforecast/today");
+        var content = await httpClient.GetStringAsync("/weatherforecast/today", context.CancellationToken);
 
         dynamic json = Deserialize<ExpandoObject>(content);
 

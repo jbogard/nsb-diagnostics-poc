@@ -1,83 +1,68 @@
-using System;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NServiceBus;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Resources;
+using Microsoft.EntityFrameworkCore;
+using WebApplication;
 using WorkerService.Messages;
 
-namespace WebApplication;
+var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder();
 
-public class Program
+const string EndpointName = "NsbActivities.WebApplication";
+
+var endpointConfiguration = new EndpointConfiguration(EndpointName);
+
+var transport = new RabbitMQTransport(
+    RoutingTopology.Conventional(QueueType.Classic),
+    builder.Configuration.GetConnectionString("broker")
+);
+var transportSettings = endpointConfiguration.UseTransport(transport);
+
+transportSettings.RouteToEndpoint(typeof(SaySomething).Assembly, "NsbActivities.WorkerService");
+
+endpointConfiguration.UsePersistence<LearningPersistence>();
+endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
+
+endpointConfiguration.EnableInstallers();
+
+endpointConfiguration.EnableOpenTelemetry();
+
+builder.UseNServiceBus(endpointConfiguration);
+
+builder.AddServiceDefaults();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<WeatherContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("sqldata")));
+
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddHostedService<DbInitializer>();
+
+var app = builder.Build();
+
+app.Logger.LogInformation(builder.Configuration.GetConnectionString("broker"));
+app.Logger.LogInformation(builder.Configuration.GetConnectionString("sqldata"));
+
+app.MapDefaultEndpoints();
+
+if (app.Environment.IsDevelopment())
 {
-    public const string EndpointName = "NsbActivities.WebApplication";
-
-    public static void Main(string[] args)
-    {
-        var host = CreateHostBuilder(args).Build();
-
-        SeedDb(host);
-
-        host.Run();
-    }
-
-    private static void SeedDb(IHost host)
-    {
-        using var scope = host.Services.CreateScope();
-        var services = scope.ServiceProvider;
-
-        try
-        {
-            var context = services.GetRequiredService<WeatherContext>();
-            DbInitializer.Initialize(context);
-        }
-        catch (Exception ex)
-        {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "An error occurred creating the DB.");
-        }
-    }
-
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureLogging(logging =>
-            {
-                logging.AddOpenTelemetry(options =>
-                {
-                    options.IncludeFormattedMessage = true;
-                    options.IncludeScopes = true;
-                    options.ParseStateValues = true;
-                    options.AddConsoleExporter();
-                    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(EndpointName));
-                });
-            })
-            .UseNServiceBus(_ =>
-            {
-                var endpointConfiguration = new EndpointConfiguration(EndpointName);
-
-                var transport = new RabbitMQTransport(
-                    RoutingTopology.Conventional(QueueType.Classic),
-                    "host=localhost"
-                );
-                var transportSettings = endpointConfiguration.UseTransport(transport);
-
-                transportSettings.RouteToEndpoint(typeof(SaySomething).Assembly, "NsbActivities.WorkerService");
-
-                endpointConfiguration.UsePersistence<LearningPersistence>();
-                endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
-
-                endpointConfiguration.EnableInstallers();
-
-                endpointConfiguration.EnableOpenTelemetry();
-                // configure endpoint here
-                return endpointConfiguration;
-            })
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            })
-    ;
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+else
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    // The default HSTS value is 30 days.
+    // You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

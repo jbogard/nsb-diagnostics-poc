@@ -11,15 +11,15 @@ namespace WorkerService;
 
 public class SomethingSaidHandler : IHandleMessages<SomethingSaid>
 {
-    private readonly Func<HttpClient> _httpClientFactory;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public SomethingSaidHandler(Func<HttpClient> httpClientFactory) 
+    public SomethingSaidHandler(IHttpClientFactory httpClientFactory) 
         => _httpClientFactory = httpClientFactory;
 
     public async Task Handle(SomethingSaid message, IMessageHandlerContext context)
     {
-        var httpClient = _httpClientFactory();
-        var content = await httpClient.GetStringAsync("/weatherforecast/today");
+        var httpClient = _httpClientFactory.CreateClient("web");
+        var content = await httpClient.GetStringAsync("/weatherforecast/today", context.CancellationToken);
 
         dynamic json = Deserialize<ExpandoObject>(content);
 
