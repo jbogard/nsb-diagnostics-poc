@@ -25,8 +25,9 @@ public class SomethingSaidSaga : Saga<SomethingSaidSagaData>,
 {
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SomethingSaidSagaData> mapper)
     {
-        mapper.ConfigureMapping<TemperatureRead>(m => m.Id).ToSaga(s => s.OriginatorId);
-        mapper.ConfigureMapping<SomethingYelled>(m => m.Id).ToSaga(s => s.OriginatorId);
+        mapper.MapSaga(s => s.OriginatorId)
+            .ToMessage<TemperatureRead>(m => m.Id)
+            .ToMessage<SomethingYelled>(m => m.Id);
     }
 
     public Task Handle(TemperatureRead message, IMessageHandlerContext context)

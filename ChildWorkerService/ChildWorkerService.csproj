@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChildWorkerService.Messages\ChildWorkerService.Messages.csproj" />
-    <ProjectReference Include="..\ObservabilityExtensions\ObservabilityExtensions.csproj" />
     <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
     <ProjectReference Include="..\WebApplication.Messages\WebApplication.Messages.csproj" />
   </ItemGroup>
