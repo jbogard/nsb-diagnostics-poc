@@ -9,7 +9,7 @@ const string EndpointName = "NsbActivities.WebApplication";
 var endpointConfiguration = new EndpointConfiguration(EndpointName);
 
 var transport = new RabbitMQTransport(
-    RoutingTopology.Conventional(QueueType.Classic),
+    RoutingTopology.Conventional(QueueType.Quorum),
     builder.Configuration.GetConnectionString("broker")
 );
 var transportSettings = endpointConfiguration.UseTransport(transport);
@@ -22,6 +22,8 @@ endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
 endpointConfiguration.EnableInstallers();
 
 endpointConfiguration.EnableOpenTelemetry();
+
+endpointConfiguration.AuditProcessedMessagesTo("audit");
 
 builder.UseNServiceBus(endpointConfiguration);
 

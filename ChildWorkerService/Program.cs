@@ -11,7 +11,7 @@ endpointConfiguration.UseSerialization<NewtonsoftJsonSerializer>();
 Console.WriteLine(builder.Configuration.GetConnectionString("broker"));
 
 var transport = new RabbitMQTransport(
-    RoutingTopology.Conventional(QueueType.Classic),
+    RoutingTopology.Conventional(QueueType.Quorum),
     builder.Configuration.GetConnectionString("broker")
 );
 endpointConfiguration.UseTransport(transport);
@@ -23,6 +23,8 @@ endpointConfiguration.EnableInstallers();
 var recoverability = endpointConfiguration.Recoverability();
 recoverability.Immediate(i => i.NumberOfRetries(1));
 recoverability.Delayed(i => i.NumberOfRetries(0));
+
+endpointConfiguration.AuditProcessedMessagesTo("audit");
 
 endpointConfiguration.EnableOpenTelemetry();
 

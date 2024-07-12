@@ -82,7 +82,8 @@ namespace Microsoft.Extensions.Hosting
 
             if (useOtlpExporter)
             {
-                builder.Services.AddOpenTelemetry().UseOtlpExporter();
+                builder.Services.AddOpenTelemetry()
+                    .UseOtlpExporter();
             }
 
             builder.Services.AddOpenTelemetry().WithTracing(tracing => tracing.AddZipkinExporter());
