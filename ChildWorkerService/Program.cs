@@ -36,4 +36,5 @@ builder.Services.AddHostedService<Mongo2GoService>();
 builder.AddMongoDBClient("mongo");
 
 var host = builder.Build();
+
 host.Run();

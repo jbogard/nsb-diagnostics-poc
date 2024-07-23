@@ -59,18 +59,13 @@ namespace Microsoft.Extensions.Hosting
                            .AddGrpcClientInstrumentation()
                            .AddHttpClientInstrumentation()
                            .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
-                           // .AddSqlClientInstrumentation(options =>
-                           // {
-                           //     options.SetDbStatementForText = true;
-                           //     options.SetDbStatementForStoredProcedure = true;
-                           // })
                            .AddSource("NServiceBus.Core")
                            .AddSource("Aspire.RabbitMQ.Client")
                            .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
 
                     tracing.AddProcessor(new CopyBaggageToTagsProcessor());
                 });
-
+            
             builder.AddOpenTelemetryExporters();
 
             return builder;
@@ -82,25 +77,13 @@ namespace Microsoft.Extensions.Hosting
 
             if (useOtlpExporter)
             {
-                builder.Services.AddOpenTelemetry()
-                    .UseOtlpExporter();
+                builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
+                builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
+                builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
             }
 
-            builder.Services.AddOpenTelemetry().WithTracing(tracing => tracing.AddZipkinExporter());
-            //if (useOtlpExporter)
-            //{
-            //    builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
-            //    builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
-            //    builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
-            //}
-
-            // Uncomment the following lines to enable the Prometheus exporter (requires the OpenTelemetry.Exporter.Prometheus.AspNetCore package)
-            // builder.Services.AddOpenTelemetry()
-            //    .WithMetrics(metrics => metrics.AddPrometheusExporter());
-
-            // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
-            // builder.Services.AddOpenTelemetry()
-            //    .UseAzureMonitor();
+            // This exports directly instead of using the OTel collector
+            //builder.Services.AddOpenTelemetry().WithTracing(tracing => tracing.AddZipkinExporter());
 
             return builder;
         }

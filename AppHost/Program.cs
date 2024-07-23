@@ -1,9 +1,14 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TraceLens.Aspire;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddContainer("zipkin", "openzipkin/zipkin")
     .WithEndpoint(9411, 9411);
+
+builder.AddOpenTelemetryCollector("collector", "config.yaml")
+    .WithAppForwarding();
 
 var rmqPassword = builder.AddParameter("messaging-password");
 var dbPassword = builder.AddParameter("db-password");
@@ -74,6 +79,14 @@ var worker = builder
     .WithReference(web)
     .WaitFor(broker);
 
-    
+var application = builder.Build();
 
-builder.Build().Run();
+var logger = application.Services.GetRequiredService<ILogger<Program>>();
+
+logger.LogInformation(builder.Configuration["DOTNET_DASHBOARD_OTLP_ENDPOINT_URL"]);
+logger.LogInformation(builder.Configuration["AppHost:OtlpApiKey"]);
+logger.LogInformation(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+application.Run();
+
+public partial class Program { }
