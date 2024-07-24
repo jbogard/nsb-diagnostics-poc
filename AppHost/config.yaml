@@ -18,13 +18,15 @@ exporters:
       x-otlp-api-key: ${env:ASPIRE_API_KEY}
     tls:
       insecure: true
+  zipkin:
+    endpoint: http://host.docker.internal:9411/api/v2/spans
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/aspire]
+      exporters: [otlp/aspire, zipkin]
     metrics:
       receivers: [otlp]
       processors: [batch]

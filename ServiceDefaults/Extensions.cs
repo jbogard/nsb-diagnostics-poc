@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -40,6 +41,14 @@ namespace Microsoft.Extensions.Hosting
                 logging.IncludeScopes = true;
             });
 
+            var compositeTextMapPropagator = new CompositeTextMapPropagator(new TextMapPropagator[]
+            {
+                new TraceContextPropagator(),
+                new BaggagePropagator()
+            });
+            Sdk.SetDefaultTextMapPropagator(compositeTextMapPropagator);
+
+            
             builder.Services.AddOpenTelemetry()
                 .WithMetrics(metrics =>
                 {
@@ -60,7 +69,6 @@ namespace Microsoft.Extensions.Hosting
                            .AddHttpClientInstrumentation()
                            .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
                            .AddSource("NServiceBus.Core")
-                           .AddSource("Aspire.RabbitMQ.Client")
                            .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
 
                     tracing.AddProcessor(new CopyBaggageToTagsProcessor());
