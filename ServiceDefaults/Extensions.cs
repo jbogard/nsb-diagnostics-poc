@@ -65,11 +65,11 @@ namespace Microsoft.Extensions.Hosting
                     }
 
                     tracing.AddAspNetCoreInstrumentation()
-                           .AddGrpcClientInstrumentation()
-                           .AddHttpClientInstrumentation()
-                           .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
-                           .AddSource("NServiceBus.Core")
-                           .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
+                        .AddGrpcClientInstrumentation()
+                        .AddHttpClientInstrumentation()
+                        .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
+                        .AddSource("NServiceBus.Core")
+                        .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
 
                     tracing.AddProcessor(new CopyBaggageToTagsProcessor());
                 });

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ChildWorkerService.Messages;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -34,10 +35,8 @@ public class MakeItYellHandler : IHandleMessages<MakeItYell>
 
         var next = rng.Next((int)count);
 
-        if (context.Extensions.TryGet(out Activity currentActivity))
-        {
-            currentActivity.AddTag("code.randomvalue", next);
-        }
+        Activity.Current?.AddTag("code.randomvalue", next);
+        Activity.Current?.AddEvent(new ActivityEvent($"Yelling out {message.Value}"));
         
         var favoritePerson = await collection.AsQueryable().Skip(next).FirstAsync(cancellationToken: context.CancellationToken);
 

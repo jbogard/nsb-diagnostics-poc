@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.MongoDB.Driver" Version="8.1.0" />
+    <PackageReference Include="Aspire.MongoDB.Driver" Version="8.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="NServiceBus.Extensions.Hosting" Version="3.0.0" />
     <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="4.0.0" />
     <PackageReference Include="NServiceBus.Metrics" Version="5.0.0" />
-    <PackageReference Include="NServiceBus.RabbitMQ" Version="9.0.0" />
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="9.1.1" />
     <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
