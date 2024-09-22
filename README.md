@@ -4,6 +4,14 @@ This code example shows integration with OpenTelemetry and W3C trace context
 
 It requires RabbitMQ and Zipkin (just use Docker for both) to run.
 
+Also to setup the appropriate NSB queues
+```powershell
+docker run -e CONNECTIONSTRING="host=host.docker.internal" -e TRANSPORTTYPE=RabbitMQ.QuorumConventionalRouting -e RAVENDB_CONNECTIONSTRING="http://host.docker.internal:8080" particular/servicecontrol:latest --setup
+docker run -e CONNECTIONSTRING="host=host.docker.internal" -e TRANSPORTTYPE=RabbitMQ.QuorumConventionalRouting -e RAVENDB_CONNECTIONSTRING="http://host.docker.internal:8080" particular/servicecontrol-audit:latest --setup
+docker run -e CONNECTIONSTRING="host=host.docker.internal" -e TRANSPORTTYPE=RabbitMQ.QuorumConventionalRouting -e RAVENDB_CONNECTIONSTRING="http://host.docker.internal:8080" particular/servicecontrol-monitoring:latest --setup
+```
+https://docs.particular.net/servicecontrol/monitoring-instances/deployment/containers#initial-setup
+
 Values based on https://github.com/open-telemetry/opentelemetry-specification/pull/418
 
 ## Messaging attributes
