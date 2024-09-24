@@ -28,6 +28,8 @@ endpointConfiguration.AuditProcessedMessagesTo("audit");
 
 endpointConfiguration.EnableOpenTelemetry();
 
+endpointConfiguration.ConnectToServicePlatformDefaults();
+
 builder.UseNServiceBus(endpointConfiguration);
 
 builder.AddServiceDefaults();

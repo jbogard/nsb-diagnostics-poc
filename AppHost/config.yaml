@@ -20,13 +20,15 @@ exporters:
       insecure: true
   zipkin:
     endpoint: http://host.docker.internal:9411/api/v2/spans
+  otlp/tracelens:
+    endpoint: http://localhost:4317
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/aspire, zipkin]
+      exporters: [otlp/aspire, zipkin, otlp/tracelens]
     metrics:
       receivers: [otlp]
       processors: [batch]
