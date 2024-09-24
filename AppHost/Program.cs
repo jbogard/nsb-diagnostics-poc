@@ -55,17 +55,21 @@ logger.LogInformation(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
 
 application.Run();
 
-void ConfigureParticularServicePlatform(IDistributedApplicationBuilder distributedApplicationBuilder,
-    IResourceBuilder<RabbitMQServerResource> resourceBuilder)
+static void ConfigureParticularServicePlatform(IDistributedApplicationBuilder builder,
+    IResourceBuilder<RabbitMQServerResource> rabbitMqResource)
 {
-    var license = File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ParticularSoftware", "license.xml"));
+    var license = File.ReadAllText(
+        Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+            "ParticularSoftware", 
+            "license.xml"));
     
-    var serviceControlDb = builder
+    builder
         .AddContainer("servicecontroldb", "particular/servicecontrol-ravendb", "latest")
         .WithBindMount("AppHost-servicecontroldb-data", "/opt/RavenDB/Server/RavenData")
         .WithEndpoint(8080, 8080);
     
-    var serviceControlError = distributedApplicationBuilder
+    builder
         .AddContainer("servicecontrol", "particular/servicecontrol")
         .WithEnvironment("TransportType", "RabbitMQ.QuorumConventionalRouting")
         .WithEnvironment("ConnectionString", "host=host.docker.internal")
@@ -74,9 +78,9 @@ void ConfigureParticularServicePlatform(IDistributedApplicationBuilder distribut
         .WithEnvironment("PARTICULARSOFTWARE_LICENSE", license)
         .WithArgs("--setup-and-run")
         .WithContainerRuntimeArgs("-p", "33333:33333")
-        .WaitFor(resourceBuilder);
+        .WaitFor(rabbitMqResource);
 
-    var serviceControlAudit = distributedApplicationBuilder
+    builder
         .AddContainer("servicecontrolaudit", "particular/servicecontrol-audit")
         .WithEnvironment("TransportType", "RabbitMQ.QuorumConventionalRouting")
         .WithEnvironment("ConnectionString", "host=host.docker.internal")
@@ -84,24 +88,24 @@ void ConfigureParticularServicePlatform(IDistributedApplicationBuilder distribut
         .WithEnvironment("PARTICULARSOFTWARE_LICENSE", license)
         .WithArgs("--setup-and-run")
         .WithEndpoint(44444, 44444)
-        .WaitFor(resourceBuilder);
+        .WaitFor(rabbitMqResource);
 
-    var serviceControlMonitoring = distributedApplicationBuilder
+    builder
         .AddContainer("servicecontrolmonitoring", "particular/servicecontrol-monitoring")
         .WithEnvironment("TransportType", "RabbitMQ.QuorumConventionalRouting")
         .WithEnvironment("ConnectionString", "host=host.docker.internal")
         .WithEnvironment("PARTICULARSOFTWARE_LICENSE", license)
         .WithArgs("--setup-and-run")
         .WithEndpoint(33633, 33633)
-        .WaitFor(resourceBuilder);
+        .WaitFor(rabbitMqResource);
 
-    var servicePulse = distributedApplicationBuilder
+    builder
         .AddContainer("servicepulse", "particular/servicepulse")
         .WithEnvironment("SERVICECONTROL_URL", "http://host.docker.internal:33333")
         .WithEnvironment("MONITORING_URL", "http://host.docker.internal:33633")
         .WithEnvironment("PARTICULARSOFTWARE_LICENSE", license)
         .WithEndpoint(9090, 9090)
-        .WaitFor(resourceBuilder);
+        .WaitFor(rabbitMqResource);
 }
 
 public partial class Program { }
