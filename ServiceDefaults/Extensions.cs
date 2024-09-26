@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.Hosting
                 {
                     metrics.AddRuntimeInstrumentation()
                            .AddBuiltInMeters()
-                           .AddMeter("NServiceBus.Core");
+                           .AddMeter("NServiceBus.*");
                 })
                 .WithTracing(tracing =>
                 {
@@ -68,7 +68,7 @@ namespace Microsoft.Extensions.Hosting
                         .AddGrpcClientInstrumentation()
                         .AddHttpClientInstrumentation()
                         .AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
-                        .AddSource("NServiceBus.Core")
+                        .AddSource("NServiceBus.*")
                         .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources");
 
                     tracing.AddProcessor(new CopyBaggageToTagsProcessor());

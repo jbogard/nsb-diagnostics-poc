@@ -12,12 +12,12 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.0" />
     <PackageReference Include="Aspire.Hosting.MongoDB" Version="8.2.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.2.0" />
     <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="8.2.0" />
     <PackageReference Include="Aspire.Hosting.SqlServer" Version="8.2.0" />
     <PackageReference Include="Nall.Aspire.Hosting.DependsOn.RabbitMq" Version="1.0.1" />
     <PackageReference Include="Nall.Aspire.Hosting.DependsOn.SqlServer" Version="1.0.1" />
     <PackageReference Include="PracticalOtel.OtelCollector.Aspire" Version="0.9.6-rc" />
-    <PackageReference Include="TraceLens.Aspire" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
