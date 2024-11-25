@@ -21,12 +21,15 @@ var dbPassword = builder.AddParameter("db-password");
 var broker = builder.AddRabbitMQ(name: "broker", password: rmqPassword, port: 5672)
     .WithDataVolume()
     .WithManagementPlugin()
-    .WithEndpoint("management", e => e.Port = 15672)
-    .WithHealthCheck();
-var mongo = builder.AddMongoDB("mongo");
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithEndpoint("management", e => e.Port = 15672);
+
+var mongo = builder.AddMongoDB("mongo")
+    .WithLifetime(ContainerLifetime.Persistent);
+
 var sql = builder.AddSqlServer("sql", password: dbPassword)
-    .WithHealthCheck()
     .WithDataVolume()
+    .WithLifetime(ContainerLifetime.Persistent)
     .AddDatabase("sqldata");
 
 ConfigureParticularServicePlatform(builder, broker);
