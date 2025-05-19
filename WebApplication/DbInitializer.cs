@@ -10,7 +10,7 @@ public class DbInitializer : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     public const string ActivitySourceName = "Migrations";
-    private static readonly ActivitySource _activitySource = new(ActivitySourceName);
+    private static readonly ActivitySource ActivitySource = new(ActivitySourceName);
     private static readonly string[] Summaries =
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -23,7 +23,7 @@ public class DbInitializer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        using var activity = _activitySource.StartActivity("Migrating database", ActivityKind.Client);
+        using var activity = ActivitySource.StartActivity(name: "Migrating database", ActivityKind.Client);
 
         try
         {
