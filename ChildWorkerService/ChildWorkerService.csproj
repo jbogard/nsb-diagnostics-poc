@@ -15,7 +15,6 @@
     <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="4.0.0" />
     <PackageReference Include="NServiceBus.Metrics" Version="5.0.0" />
     <PackageReference Include="NServiceBus.RabbitMQ" Version="9.2.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
